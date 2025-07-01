@@ -7,41 +7,40 @@ import Image from 'next/image';
 const MapUpdater = ({ selectedCompany, onSelectCompany }) => {
   const map = useMap();
   const defaultCenter = [52.1326, 5.2913];
-  const defaultZoom = 9;
+  const overviewZoom = 9;
+  const companyZoom = 14;
+  const prevCompanyRef = React.useRef(null);
 
   useEffect(() => {
+    // Alleen als er een bedrijf geselecteerd wordt: zoom in
     if (selectedCompany && selectedCompany.lat && selectedCompany.lng) {
-      // Forceer altijd flyTo naar zoom 16, ook als je al op 16 zit
-      map.flyTo([selectedCompany.lat, selectedCompany.lng],17, {
-        animate: true,
-        duration: 1.2,
-        easeLinearity: 0.25,
-      });
-    } else {
-      // Zoom uit naar overzicht van Nederland
-      console.log("🗺️ Zoom uit naar overzicht");
-      map.flyTo(defaultCenter, defaultZoom, {
+      map.flyTo([selectedCompany.lat, selectedCompany.lng], companyZoom, {
         animate: true,
         duration: 1.2,
         easeLinearity: 0.25,
       });
     }
+    // Alleen als een bedrijf wordt weggeklikt (van geselecteerd naar null): zoom uit
+    if (!selectedCompany && prevCompanyRef.current) {
+      map.flyTo(defaultCenter, overviewZoom, {
+        animate: true,
+        duration: 1.2,
+        easeLinearity: 0.25,
+      });
+    }
+    prevCompanyRef.current = selectedCompany;
   }, [selectedCompany, map]);
 
-  // Reset selectie wanneer er wordt uitgezoomd
+  // Reset selectie wanneer er wordt uitgezoomd (optioneel, kan je ook verwijderen)
   useEffect(() => {
     const handleZoomEnd = () => {
-      const currentZoom = map.getZoom();
-      if (currentZoom <= defaultZoom && selectedCompany) {
-        onSelectCompany(null);
-      }
+      // Geen automatische reset meer
     };
-
     map.on('zoomend', handleZoomEnd);
     return () => {
       map.off('zoomend', handleZoomEnd);
     };
-  }, [map, selectedCompany, onSelectCompany]);
+  }, [map]);
 
   return null;
 };
@@ -92,14 +91,15 @@ const Map = ({
     });
   }, []);
 
-  // Definieer de grenzen van Nederland met wat extra ruimte
+  // Definieer de grenzen van Nederland met extra marge
   const bounds = [
-    [50.75, 3.2], // Zuidwestelijke grens
-    [53.7, 7.22], // Noordoostelijke grens
+    [45.0, -5.0], // Veel zuidelijker en westelijker (inclusief groot deel van West-Europa)
+    [58.0, 15.0], // Veel noordelijker en oostelijker
   ];
 
   const handleZoomEnd = (e) => {
     setMapZoom(e.target.getZoom());
+    console.log("Current zoom:", e.target.getZoom());
     onZoom?.();
   };
 
@@ -121,9 +121,7 @@ const Map = ({
     <MapContainer
       center={[52.1326, 5.2913]}
       zoom={9}
-      minZoom={9}
-      maxBounds={bounds}
-      maxBoundsViscosity={1.0}
+      minZoom={3}
       className="h-full w-full z-0"
       onClick={() => {
         onClick?.();
@@ -142,8 +140,8 @@ const Map = ({
       }}
     >
       <TileLayer
-        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution="&copy; OpenStreetMap contributors"
         maxZoom={19}
       />
 

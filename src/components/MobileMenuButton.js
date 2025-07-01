@@ -1,15 +1,18 @@
 import React from 'react';
 
 const MobileMenuButton = ({ isOpen, onClick }) => {
+  // Dynamische left-waarde: 12px naast de sidebar (sidebar is 85vw of max 300px)
+  const sidebarWidth = typeof window !== 'undefined' ? Math.min(window.innerWidth * 0.85, 300) : 300;
+  const left = isOpen
+    ? `calc(min(85vw, 300px) + 12px)`
+    : '12px';
+
   return (
     <button
-      className={`fixed top-[80px] z-50 bg-white p-3 rounded-full shadow-lg lg:hidden transition-all duration-300 ${
-        isOpen 
-          ? 'left-[calc(85%-32px)]' // 32px is de breedte van de knop + padding
-          : 'left-2' // Dichter bij de rand op mobiel
-      }`}
+      className={`fixed top-[80px] z-50 bg-white p-3 rounded-full shadow-lg lg:hidden transition-all duration-300`}
       style={{
-        transform: isOpen ? 'translateX(0)' : 'none' // Verwijder de transform wanneer sidebar dicht is
+        left,
+        transition: 'left 0.3s cubic-bezier(0.4,0,0.2,1)',
       }}
       onClick={onClick}
       aria-label={isOpen ? 'Sluit menu' : 'Open menu'}
