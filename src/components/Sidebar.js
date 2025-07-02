@@ -50,16 +50,16 @@ export default function Sidebar({
   // ✅ Handle bedrijf selectie
   const handleCompanyClick = (company) => {
     if (selectedCompany?.id === company.id) {
-      // Als het bedrijf al geselecteerd is, deselecteer het
-      onSelectCompany(null);
+      // Als het bedrijf al geselecteerd is, doe niets (blijf geselecteerd)
+      return;
     } else {
-      // Anders selecteer het nieuwe bedrijf
+      // Anders selecteer het nieuwe bedrijf (deselecteert automatisch het vorige)
       onSelectCompany(company);
     }
   };
 
   return (
-    <div className={`sidebar ${isOpen ? 'is-open' : ''}`}>
+    <div className={`sidebar ${isOpen ? 'is-open' : ''}`} style={{ zIndex: 9999 }}>
       <div className="sidebar-content">
         <h2 className="text-xl font-bold mb-4">Facilitaire bedrijven</h2>
         

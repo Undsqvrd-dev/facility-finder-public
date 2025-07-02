@@ -9,7 +9,7 @@ const MobileMenuButton = ({ isOpen, onClick }) => {
 
   return (
     <button
-      className={`fixed top-[80px] z-50 bg-white p-3 rounded-full shadow-lg lg:hidden transition-all duration-300`}
+      className={`fixed top-[80px] z-50 bg-white p-3 rounded-full shadow-lg lg:hidden transition-all duration-300 mobile-menu-button`}
       style={{
         left,
         transition: 'left 0.3s cubic-bezier(0.4,0,0.2,1)',

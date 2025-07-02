@@ -72,7 +72,6 @@ const FacilityFinder = ({ mode = "public", user = null }) => {
     if (window.innerWidth <= 768) {
       setIsSidebarOpen(false);
     }
-    setSelectedCompany(null);
   };
 
   const handleMapInteraction = () => {

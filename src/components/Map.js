@@ -125,7 +125,6 @@ const Map = ({
       className="h-full w-full z-0"
       onClick={() => {
         onClick?.();
-        onSelectCompany(null);
       }}
       scrollWheelZoom={true}
       doubleClickZoom={true}

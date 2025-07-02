@@ -21,22 +21,6 @@ const CompanyPopup = ({ company, onClose, mode = "public", user = null, inMapCon
     return () => window.removeEventListener('keydown', handleEsc);
   });
 
-  // Klik buiten popup sluit
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (popupRef.current && !popupRef.current.contains(event.target)) {
-        handleClose();
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const handleClose = () => {
-    document.body.style.overflow = 'auto';
-    onClose();
-  };
-
   // Mobiel detectie (max-width: 768px)
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
@@ -46,6 +30,34 @@ const CompanyPopup = ({ company, onClose, mode = "public", user = null, inMapCon
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Klik buiten popup sluit (alleen op mobiel)
+  useEffect(() => {
+    if (!isMobile) return;
+    function handleClickOutside(event) {
+      // Debug: log wat er wordt geklikt
+      // console.log('🔍 Click detected on:', event.target);
+      // console.log('🔍 Target classes:', event.target.className);
+      // console.log('🔍 Target tag:', event.target.tagName);
+      const target = event.target;
+      const isMapClick = target.closest('.leaflet-container') || target.closest('.leaflet-map-pane');
+      const isSidebarClick = target.closest('.sidebar') || target.closest('.mobile-menu-button');
+      const isHeaderClick = target.closest('header');
+      if (isMapClick || isSidebarClick || isHeaderClick) {
+        return; // Sluit de popup niet bij deze clicks
+      }
+      if (popupRef.current && !popupRef.current.contains(target)) {
+        handleClose();
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isMobile]);
+
+  const handleClose = () => {
+    document.body.style.overflow = 'auto';
+    onClose();
+  };
+
   if (!company) return null;
 
   if (mode === "public" && isMobile) {
@@ -53,67 +65,66 @@ const CompanyPopup = ({ company, onClose, mode = "public", user = null, inMapCon
   }
 
   if (mode === "public") {
+    // Desktop: GEEN overlay, alleen de popup zelf
     return (
-      <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center">
-        <div ref={popupRef} className="detail-popup active">
-          {/* Linker kolom met logo en omschrijving */}
-          <div>
-            <div className="company-logo">
-              <img
-                src={company.logo}
-                alt={`${company.naam} logo`}
-                style={{
-                  width: '180px',
-                  height: '60px',
-                  objectFit: 'contain',
-                  marginBottom: '1rem',
-                }}
-                onError={(e) => {
-                  e.target.src = '/placeholder-logo.svg';
-                }}
-              />
-            </div>
-            <h2>{company.naam}</h2>
-            <p style={{ fontSize: '0.9rem', lineHeight: '1.5', color: '#4B5563' }}>{company.omschrijving}</p>
+      <div ref={popupRef} className="detail-popup active">
+        {/* Linker kolom met logo en omschrijving */}
+        <div>
+          <div className="company-logo">
+            <img
+              src={company.logo}
+              alt={`${company.naam} logo`}
+              style={{
+                width: '180px',
+                height: '60px',
+                objectFit: 'contain',
+                marginBottom: '1rem',
+              }}
+              onError={(e) => {
+                e.target.src = '/placeholder-logo.svg';
+              }}
+            />
           </div>
-
-          {/* Rechter kolom met info box */}
-          <div className="info-box">
-            <div className="info-item">
-              <span className="info-label">Type facilitaire organisatie</span>
-              <span className="info-value">{company.type}</span>
-            </div>
-            <div className="info-item">
-              <span className="info-label">Locatie</span>
-              <span className="info-value">{company.locatie}</span>
-            </div>
-            <div className="info-item">
-              <span className="info-label">Type branche</span>
-              <span className="info-value">{company.branche || 'Alles'}</span>
-            </div>
-            {company.website && (
-              <a
-                href={company.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="website-button"
-              >
-                Naar website
-              </a>
-            )}
-          </div>
-
-          {/* Sluit knop */}
-          <button
-            onClick={handleClose}
-            className="close-button"
-            aria-label="Sluiten"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <h2>{company.naam}</h2>
+          <p style={{ fontSize: '0.9rem', lineHeight: '1.5', color: '#4B5563' }}>{company.omschrijving}</p>
         </div>
+
+        {/* Rechter kolom met info box */}
+        <div className="info-box">
+          <div className="info-item">
+            <span className="info-label">Type facilitaire organisatie</span>
+            <span className="info-value">{company.type}</span>
+          </div>
+          <div className="info-item">
+            <span className="info-label">Locatie</span>
+            <span className="info-value">{company.locatie}</span>
+          </div>
+          <div className="info-item">
+            <span className="info-label">Type branche</span>
+            <span className="info-value">{company.branche || 'Alles'}</span>
+          </div>
+          {company.website && (
+            <a
+              href={company.website}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="website-button"
+            >
+              Naar website
+            </a>
+          )}
+        </div>
+
+        {/* Sluit knop */}
+        <button
+          onClick={handleClose}
+          className="close-button"
+          aria-label="Sluiten"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
     );
   }
@@ -228,7 +239,17 @@ const MobileCompanyPopup = ({ company, onClose }) => {
 
   useEffect(() => {
     function handleClickOutside(event) {
-      if (popupRef.current && !popupRef.current.contains(event.target)) {
+      // Voorkom sluiten bij klikken op kaart, sidebar, of andere belangrijke elementen
+      const target = event.target;
+      const isMapClick = target.closest('.leaflet-container') || target.closest('.leaflet-map-pane');
+      const isSidebarClick = target.closest('.sidebar') || target.closest('.mobile-menu-button');
+      const isHeaderClick = target.closest('header');
+      
+      if (isMapClick || isSidebarClick || isHeaderClick) {
+        return; // Sluit de popup niet bij deze clicks
+      }
+      
+      if (popupRef.current && !popupRef.current.contains(target)) {
         onClose();
       }
     }

@@ -67,7 +67,6 @@ export default function Home() {
     if (window.innerWidth <= 768) {
       setIsSidebarOpen(false);
     }
-    setSelectedCompany(null);
   };
 
   const handleMapInteraction = () => {
@@ -92,15 +91,6 @@ export default function Home() {
               isOpen={isSidebarOpen} 
               onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
             />
-            
-            <Sidebar
-              facilities={facilities}
-              onFilterChange={handleFilterChange}
-              onSelectCompany={handleSelectCompany}
-              selectedCompany={selectedCompany}
-              isOpen={isSidebarOpen}
-            />
-
             <div className="flex-1">
               <Map
                 filters={filters}
@@ -114,10 +104,17 @@ export default function Home() {
             </div>
           </div>
         </div>
-
         {selectedCompany && (
           <CompanyPopup company={selectedCompany} onClose={() => setSelectedCompany(null)} />
         )}
+        <Sidebar
+          facilities={facilities}
+          onFilterChange={handleFilterChange}
+          onSelectCompany={handleSelectCompany}
+          selectedCompany={selectedCompany}
+          isOpen={isSidebarOpen}
+          className="fixed top-0 left-0 h-screen w-[85vw] max-w-[300px] z-[1100] md:static md:z-10"
+        />
       </div>
     </div>
   );
