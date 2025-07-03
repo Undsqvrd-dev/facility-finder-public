@@ -16,6 +16,10 @@ declare global {
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
 
+  if (typeof window !== 'undefined') {
+    console.log('✅ _app.tsx wordt uitgevoerd!');
+  }
+
   useEffect(() => {
     // Track page views when route changes
     const handleRouteChange = (url: string) => {
