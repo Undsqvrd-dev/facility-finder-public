@@ -79,7 +79,7 @@ export default function Home() {
     <div className="flex flex-col h-screen bg-background">
       <header className="fixed top-0 left-0 w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white py-4 px-6 flex justify-between items-center z-50 shadow-md">
         <span className="text-2xl font-semibold">Facility Finder</span>
-        <a href="https://www.undsqvrd.nl" target="_blank" rel="noopener noreferrer" className="text-sm text-white hover:underline">
+        <a href="https://www.undsqvrd.nl/facility-finder" target="_blank" rel="noopener noreferrer" className="text-sm text-white hover:underline">
           Powered by UNDSQVRD
         </a>
       </header>
