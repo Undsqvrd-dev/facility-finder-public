@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
+import Head from "next/head";
 import Sidebar from "@/components/Sidebar";
 import CompanyPopup from "@/components/CompanyPopup";
 import MobileMenuButton from "@/components/MobileMenuButton";
@@ -76,7 +77,12 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <>
+      <Head>
+        <title>Facility Finder - Vind facilitaire organisaties | UNDSQVRD</title>
+        <meta name="description" content="Ontdek facilitaire organisaties via onze interactieve kaart. Handig voor bijbanen, stages en banen in de facilitaire branche." />
+      </Head>
+      <div className="flex flex-col h-screen bg-background">
       <header className="fixed top-0 left-0 w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white py-4 px-6 flex justify-between items-center z-50 shadow-md">
         <span className="text-2xl font-semibold">Facility Finder</span>
         <a href="https://www.undsqvrd.nl/facility-finder" target="_blank" rel="noopener noreferrer" className="text-sm text-white hover:underline">
@@ -117,5 +123,6 @@ export default function Home() {
         />
       </div>
     </div>
+    </>
   );
 }
