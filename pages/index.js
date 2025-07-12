@@ -79,7 +79,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Facility Finder - Vind facilitaire organisaties | UNDSQVRD</title>
+        <title>Facility Finder - Vind facilitaire organisaties</title>
         <meta name="description" content="Ontdek facilitaire organisaties via onze interactieve kaart. Handig voor bijbanen, stages en banen in de facilitaire branche." />
       </Head>
       <div className="flex flex-col h-screen bg-background">
