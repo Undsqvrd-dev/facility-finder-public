@@ -8,5 +8,7 @@ export const companyLogos = {
   'Streekziekenhuis': '/logos/SKBziekenhuis.png',
   'Wageningen Univ': '/logos/wur.png',
   'Bink': '/logos/bink.png',
-  'The Food Office': '/logos/thefoodoffice.png'
+  'The Food Office': '/logos/thefoodoffice.png',
+  'Facility Service': '/logos/facility.png',
+  'JRFM': '/logos/jrfm.png'
 }; 
