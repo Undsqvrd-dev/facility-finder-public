@@ -96,6 +96,7 @@ export default function Sidebar({
             <option value="Hospitality">Hospitality</option>
             <option value="Transport en logistiek">Transport en logistiek</option>
             <option value="Evenementen">Evenementen</option>
+            <option value="Eten en Drinken">Eten en Drinken</option>
           </select>
         </div>
 
