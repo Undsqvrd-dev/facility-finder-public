@@ -10,5 +10,6 @@ export const companyLogos = {
   'Bink': '/logos/bink.png',
   'The Food Office': '/logos/thefoodoffice.png',
   'Facility Service': '/logos/facility.png',
-  'JRFM': '/logos/jrfm.png'
+  'JRFM': '/logos/jrfm.png',
+  'MKE Groep': '/logos/mkegroep.png'
 }; 
