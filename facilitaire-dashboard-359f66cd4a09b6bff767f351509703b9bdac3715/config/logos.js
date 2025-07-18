@@ -11,5 +11,6 @@ export const companyLogos = {
   'The Food Office': '/logos/thefoodoffice.png',
   'Facility Service': '/logos/facility.png',
   'JRFM': '/logos/jrfm.png',
-  'MKE Groep': '/logos/mkegroep.png'
+  'MKE Groep': '/logos/mkegroep.png',
+  'Facility Community': '/logos/facilitycommunity.png'
 }; 
