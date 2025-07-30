@@ -75,6 +75,8 @@ export default function Sidebar({
             <option value="Alles">Alles</option>
             <option value="Facilitair dienstverlener">Facilitair dienstverlener</option>
             <option value="Facilitaire afdeling">Facilitaire afdeling</option>
+            <option value="Facilitair adviesbureau">Facilitair adviesbureau</option>
+            <option value="Facilitaire community">Facilitaire community</option>
           </select>
 
           {/* Branche */}
