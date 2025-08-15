@@ -83,10 +83,10 @@ const Map = ({ filters, facilities = [], selectedCompany, onSelectCompany, onCli
     });
   }, []);
 
-  // Definieer de grenzen van Nederland met wat extra ruimte
+  // Definieer de grenzen voor een regionaal overzicht van West-Europa (zoals in screenshot)
   const bounds = [
-    [50.75, 3.2], // Zuidwestelijke grens
-    [53.7, 7.22], // Noordoostelijke grens
+    [49.0, -2.0], // Zuidwestelijke grens (net onder België, inclusief een klein stukje UK)
+    [56.0, 12.0], // Noordoostelijke grens (net boven Noord-Duitsland)
   ];
 
   const handleZoomEnd = (e) => {
@@ -96,7 +96,11 @@ const Map = ({ filters, facilities = [], selectedCompany, onSelectCompany, onCli
 
   const filteredFacilities = facilities.filter((facility) => {
     if (filters.type !== "Alles" && facility.type !== filters.type) return false;
-    if (filters.branche !== "Alles" && facility.branche !== filters.branche) return false;
+    if (filters.branche !== "Alles") {
+      // Split branches op komma's en trim whitespace
+      const facilityBranches = facility.branche.split(',').map(b => b.trim());
+      if (!facilityBranches.includes(filters.branche)) return false;
+    }
     return true;
   });
 
@@ -112,9 +116,9 @@ const Map = ({ filters, facilities = [], selectedCompany, onSelectCompany, onCli
     <MapContainer
       center={[52.1326, 5.2913]}
       zoom={9}
-      minZoom={9}
+      minZoom={6}
       maxBounds={bounds}
-      maxBoundsViscosity={1.0}
+      maxBoundsViscosity={0.8}
       className="h-full w-full z-0"
       onClick={() => {
         onClick?.();

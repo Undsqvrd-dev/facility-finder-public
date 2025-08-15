@@ -29,7 +29,11 @@ const FacilityFinderMap = ({ mode = "public", user = null }) => {
   // Filter bedrijven
   const filteredFacilities = facilities.filter((facility) => {
     if (filters.type !== "Alles" && facility.type !== filters.type) return false;
-    if (filters.branche !== "Alles" && facility.branche !== filters.branche) return false;
+    if (filters.branche !== "Alles") {
+      // Split branches op komma's en trim whitespace
+      const facilityBranches = facility.branche.split(',').map(b => b.trim());
+      if (!facilityBranches.includes(filters.branche)) return false;
+    }
     return true;
   });
 
@@ -45,7 +49,7 @@ const FacilityFinderMap = ({ mode = "public", user = null }) => {
         </header>
         <div className="flex flex-row h-full w-full pt-[60px]">
           <div className="w-full max-w-xs bg-white border-r p-4 overflow-y-auto">
-            <FilterPanel filters={filters} onFilterChange={handleFilterChange} mode={mode} />
+            <FilterPanel filters={filters} onFilterChange={handleFilterChange} mode={mode} facilities={facilities} />
             <div className="mt-6">
               <h2 className="text-lg font-bold mb-2">Facilitaire bedrijven</h2>
               <div className="space-y-3">
@@ -84,7 +88,7 @@ const FacilityFinderMap = ({ mode = "public", user = null }) => {
   return (
     <>
       <div className="min-w-[260px] max-w-[400px] w-full md:w-[340px] p-6 pr-4 overflow-y-auto border-r border-gray-100 bg-transparent sticky top-0 h-screen">
-        <FilterPanel filters={filters} onFilterChange={handleFilterChange} mode={mode} />
+        <FilterPanel filters={filters} onFilterChange={handleFilterChange} mode={mode} facilities={facilities} />
         <div className="mt-6">
           <h2 className="text-lg font-bold mb-2">Facilitaire bedrijven</h2>
           <div className="space-y-3">
