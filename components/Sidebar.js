@@ -129,7 +129,11 @@ export default function Sidebar({ facilities = [], onFilterChange, onSelectCompa
             facilities
               .filter((facility) => {
                 if (selectedType !== "Alles" && facility.type !== selectedType) return false;
-                if (selectedBranche !== "Alles" && facility.branche !== selectedBranche) return false;
+                if (selectedBranche !== "Alles") {
+                  // Split branches op komma's en trim whitespace
+                  const facilityBranches = facility.branche.split(',').map(b => b.trim());
+                  if (!facilityBranches.includes(selectedBranche)) return false;
+                }
                 return true;
               })
               .map((facility) => (

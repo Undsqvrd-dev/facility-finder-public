@@ -139,7 +139,11 @@ export default function Sidebar({
             facilities
               .filter((facility) => {
                 if (selectedType !== "Alles" && facility.type !== selectedType) return false;
-                if (selectedBranche !== "Alles" && facility.branche !== selectedBranche) return false;
+                if (selectedBranche !== "Alles") {
+                  // Split branches op komma's en trim whitespace
+                  const facilityBranches = facility.branche.split(',').map(b => b.trim());
+                  if (!facilityBranches.includes(selectedBranche)) return false;
+                }
                 return true;
               })
               .map((facility) => (
@@ -167,13 +171,6 @@ export default function Sidebar({
                 <div>
                   <h4 className="font-semibold">{facility.naam}</h4>
                   <p className="text-sm text-gray-600">{facility.type}</p>
-                  {mode === "platform" && user && (
-                    <div className="mt-1">
-                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
-                        Match: 85%
-                      </span>
-                    </div>
-                  )}
                 </div>
               </div>
             ))
