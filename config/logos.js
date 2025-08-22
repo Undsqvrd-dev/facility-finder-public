@@ -12,5 +12,6 @@ export const companyLogos = {
   'Facility Service': '/logos/facility.png',
   'JRFM': '/logos/jrfm.png',
   'MKE Groep': '/logos/mkegroep.png',
-  'Facility Community': '/logos/facilitycommunity.png'
+  'Facility Community': '/logos/facilitycommunity.png',
+  'EW': '/logos/ew.png'
 }; 
