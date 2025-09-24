@@ -18,7 +18,24 @@ const mockVacatures = [
     niveau: "senior",
     intro: "Wij zoeken een ervaren Facility Manager voor het beheer van onze kantoorlocaties in Amsterdam.",
     status: "actief",
-    beschrijving: "<h3>Over de functie</h3><p>Als Facility Manager ben je verantwoordelijk voor het dagelijks beheer van onze kantoorlocaties in Amsterdam.</p>",
+    beschrijving: `<h3>Over de functie</h3>
+<p>Als Facility Manager ben je eindverantwoordelijk voor de dagelijkse operatie. Jij stuurt het facilitaire team aan, borgt de kwaliteit van onze dienstverlening en zorgt voor een optimaal gebruikerservaring.</p>
+
+<h3>Wat ga je doen als Facility Manager?</h3>
+<ul>
+  <li>Je geeft leiding aan een enthusiast facilitair team, bestaande uit een backoffice en een frontoffice</li>
+  <li>Je weet precies hoe je hun talenten benut, motiveert en verder ontwikkelt</li>
+  <li>Jij bent de schakel tussen pandbewoners, (facilitaire) leveranciers en ons team</li>
+  <li>Je luistert, schakelt snel en zorgt dat iedereen zich gehoord en geholpen voelt</li>
+</ul>
+
+<h3>Wat breng je mee?</h3>
+<ul>
+  <li>✓ Een uitdagende functie binnen een internationale, innovatieve organisatie</li>
+  <li>✓ Ruimte om jezelf te ontwikkelen en door te groeien</li>
+  <li>✓ Samenwerking met enthousiaste collega's in een informele werksfeer</li>
+  <li>✓ Goede arbeidsvoorwaarden en een marktconform salaris</li>
+</ul>`,
     lat: "52.3676",
     lng: "4.9041",
     datum: "2024-01-15"
@@ -33,7 +50,24 @@ const mockVacatures = [
     niveau: "starter",
     intro: "Interessante stage bij een toonaangevend facility management bedrijf.",
     status: "actief",
-    beschrijving: "<h3>Over de functie</h3><p>Als stagiair Facility Services krijg je de kans om kennis te maken met alle aspecten van facility management.</p>",
+    beschrijving: `<h3>Over de functie</h3>
+<p>Als stagiair Facility Services krijg je de kans om kennis te maken met alle aspecten van facility management. Je werkt mee aan diverse projecten en ondersteunt het team bij dagelijkse werkzaamheden.</p>
+
+<h3>Wat ga je doen tijdens je stage?</h3>
+<ul>
+  <li>Ondersteuning bieden bij facilitaire meldingen en verzoeken</li>
+  <li>Meewerken aan verbeterprojecten binnen de organisatie</li>
+  <li>Contact onderhouden met leveranciers en klanten</li>
+  <li>Administratieve taken uitvoeren en rapportages opstellen</li>
+</ul>
+
+<h3>Wat bieden wij jou?</h3>
+<ul>
+  <li>✓ Leerzame stage bij een professionele organisatie</li>
+  <li>✓ Begeleiding door ervaren collega's</li>
+  <li>✓ Kans om je vaardigheden te ontwikkelen</li>
+  <li>✓ Stagevergoeding conform CAO</li>
+</ul>`,
     lat: "51.9244",
     lng: "4.4777",
     datum: "2024-01-10"
@@ -48,7 +82,24 @@ const mockVacatures = [
     niveau: "junior",
     intro: "Start je carrière in de facilitaire sector als Junior Facility Coordinator.",
     status: "actief",
-    beschrijving: "<h3>Over de functie</h3><p>Als Junior Facility Coordinator ben je het eerste aanspreekpunt voor alle facilitaire vragen van onze medewerkers.</p>",
+    beschrijving: `<h3>Over de functie</h3>
+<p>Als Junior Facility Coordinator ben je het eerste aanspreekpunt voor alle facilitaire vragen van onze medewerkers. Je zorgt voor een optimale werkomgeving en ondersteunt bij diverse facilitaire processen.</p>
+
+<h3>Jouw verantwoordelijkheden</h3>
+<ul>
+  <li>Behandelen van facilitaire verzoeken en meldingen</li>
+  <li>Coördinatie van onderhoudswerkzaamheden</li>
+  <li>Beheer van kantoorbenodigdheden en inventaris</li>
+  <li>Ondersteuning bij evenementen en vergaderingen</li>
+</ul>
+
+<h3>Wat wij zoeken</h3>
+<ul>
+  <li>✓ HBO werk- en denkniveau</li>
+  <li>✓ Goede communicatieve vaardigheden</li>
+  <li>✓ Proactieve en servicegerichte instelling</li>
+  <li>✓ Affiniteit met facility management</li>
+</ul>`,
     lat: "52.0907",
     lng: "5.1214",
     datum: "2024-01-12"
@@ -78,7 +129,10 @@ export default function Vacatures() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [popupHeight, setPopupHeight] = useState(35); // percentage van viewport height
+  const [isExpanded, setIsExpanded] = useState(false); // Track of sheet volledig uitgevouwen is
+  const [isScrolling, setIsScrolling] = useState(false); // Track scroll state
   const hoverTimeoutRef = useRef(null);
+  const scrollContainerRef = useRef(null);
 
   // Cleanup hover timeout on unmount
   useEffect(() => {
@@ -175,6 +229,10 @@ export default function Vacatures() {
   // Handlers voor kaart interactie
   const handleSelectVacature = (vacature) => {
     setSelectedVacature(vacature);
+    // Reset sollicitatie form state bij nieuwe vacature selectie
+    if (vacature !== selectedVacature) {
+      setShowSollicitatieForm(false);
+    }
   };
 
   const handleHoverVacature = (vacature) => {
@@ -199,8 +257,7 @@ export default function Vacatures() {
   };
 
   const handleMapClick = () => {
-    setSelectedVacature(null);
-    setShowSollicitatieForm(false);
+    closeVacature();
   };
 
   const handleSollicitatieFormChange = (e) => {
@@ -290,78 +347,137 @@ export default function Vacatures() {
     }
   };
 
-  // Touch/drag handlers voor popup
+  // Touch/drag handlers voor popup - verbeterde versie
   const [isDragging, setIsDragging] = useState(false);
   const [startY, setStartY] = useState(0);
   const [startHeight, setStartHeight] = useState(0);
+  const [dragVelocity, setDragVelocity] = useState(0);
+  const [lastMoveTime, setLastMoveTime] = useState(0);
+  const [lastY, setLastY] = useState(0);
+
+  const snapPositions = [15, 95]; // Compacte preview (15%) en volledig uitgevouwen (95%)
+  const PREVIEW_HEIGHT = 15; // Compacte preview hoogte
+  const EXPANDED_HEIGHT = 95; // Volledig uitgevouwen hoogte
 
   const handleTouchStart = (e) => {
+    e.preventDefault();
     setIsDragging(true);
     setStartY(e.touches[0].clientY);
     setStartHeight(popupHeight);
+    setLastY(e.touches[0].clientY);
+    setLastMoveTime(Date.now());
+    setDragVelocity(0);
   };
 
   const handleTouchMove = (e) => {
     if (!isDragging) return;
+    e.preventDefault();
     
     const currentY = e.touches[0].clientY;
+    const currentTime = Date.now();
     const deltaY = startY - currentY; // Omgekeerd omdat omhoog slepen positief moet zijn
     const viewportHeight = window.innerHeight;
     const deltaHeight = (deltaY / viewportHeight) * 100;
     
+    // Bereken velocity voor momentum
+    const timeDelta = currentTime - lastMoveTime;
+    if (timeDelta > 0) {
+      const yDelta = currentY - lastY;
+      setDragVelocity(yDelta / timeDelta);
+    }
+    
     let newHeight = startHeight + deltaHeight;
-    newHeight = Math.max(30, Math.min(90, newHeight)); // Tussen 30% en 90%
+    newHeight = Math.max(10, Math.min(100, newHeight)); // Van 10% tot 100% voor preview tot volledig
     
     setPopupHeight(newHeight);
+    setLastY(currentY);
+    setLastMoveTime(currentTime);
   };
 
   const handleTouchEnd = () => {
     setIsDragging(false);
     
-    // Snap naar logische posities
-    if (popupHeight < 30) {
-      setPopupHeight(25);
-    } else if (popupHeight < 50) {
-      setPopupHeight(selectedVacature ? 70 : 35);
-    } else if (popupHeight < 80) {
-      setPopupHeight(70);
-    } else {
-      setPopupHeight(90);
+    // Bepaal target height op basis van huidige positie en velocity
+    let targetHeight = PREVIEW_HEIGHT;
+    
+    // Als we dichter bij expanded zijn of omhoog slepen
+    if (popupHeight > 55 || (dragVelocity < -0.8 && popupHeight > 25)) {
+      targetHeight = EXPANDED_HEIGHT;
+      setIsExpanded(true);
+    } else if (dragVelocity > 0.8 || popupHeight < 55) {
+      // Omlaag slepen of dichter bij preview
+      targetHeight = PREVIEW_HEIGHT;
+      setIsExpanded(false);
     }
+    
+    // Special case: als we heel ver omlaag slepen, sluit de sheet
+    if (dragVelocity > 1.5 && popupHeight < 30) {
+      closeVacature();
+      return;
+    }
+    
+    setPopupHeight(targetHeight);
+    setDragVelocity(0);
   };
 
   const handleMouseDown = (e) => {
+    e.preventDefault();
     setIsDragging(true);
     setStartY(e.clientY);
     setStartHeight(popupHeight);
+    setLastY(e.clientY);
+    setLastMoveTime(Date.now());
+    setDragVelocity(0);
   };
 
   const handleMouseMove = (e) => {
     if (!isDragging) return;
     
     const currentY = e.clientY;
+    const currentTime = Date.now();
     const deltaY = startY - currentY;
     const viewportHeight = window.innerHeight;
     const deltaHeight = (deltaY / viewportHeight) * 100;
     
+    // Bereken velocity voor momentum
+    const timeDelta = currentTime - lastMoveTime;
+    if (timeDelta > 0) {
+      const yDelta = currentY - lastY;
+      setDragVelocity(yDelta / timeDelta);
+    }
+    
     let newHeight = startHeight + deltaHeight;
-    newHeight = Math.max(30, Math.min(90, newHeight));
+    newHeight = Math.max(10, Math.min(100, newHeight)); // Van 10% tot 100% voor preview tot volledig
     
     setPopupHeight(newHeight);
+    setLastY(currentY);
+    setLastMoveTime(currentTime);
   };
 
   const handleMouseUp = () => {
     setIsDragging(false);
     
-    if (popupHeight < 30) {
-      setPopupHeight(25);
-    } else if (popupHeight < 50) {
-      setPopupHeight(selectedVacature ? 70 : 35);
-    } else if (popupHeight < 80) {
-      setPopupHeight(70);
-    } else {
-      setPopupHeight(90);
+    // Bepaal target height op basis van huidige positie en velocity
+    let targetHeight = PREVIEW_HEIGHT;
+    
+    // Als we dichter bij expanded zijn of omhoog slepen
+    if (popupHeight > 55 || (dragVelocity < -0.8 && popupHeight > 25)) {
+      targetHeight = EXPANDED_HEIGHT;
+      setIsExpanded(true);
+    } else if (dragVelocity > 0.8 || popupHeight < 55) {
+      // Omlaag slepen of dichter bij preview
+      targetHeight = PREVIEW_HEIGHT;
+      setIsExpanded(false);
     }
+    
+    // Special case: als we heel ver omlaag slepen, sluit de sheet
+    if (dragVelocity > 1.5 && popupHeight < 30) {
+      closeVacature();
+      return;
+    }
+    
+    setPopupHeight(targetHeight);
+    setDragVelocity(0);
   };
 
   // Effect voor mouse events op document
@@ -377,14 +493,87 @@ export default function Vacatures() {
     }
   }, [isDragging, startY, startHeight, popupHeight]);
 
+  // Scroll handler voor automatische uitbreiding
+  const handleScroll = (e) => {
+    if (!isExpanded && e.target.scrollTop > 10) {
+      setIsExpanded(true);
+      setPopupHeight(EXPANDED_HEIGHT);
+      // Reset naar top voor betere leesbaarheid
+      setTimeout(() => {
+        if (scrollContainerRef.current) {
+          scrollContainerRef.current.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+          });
+        }
+      }, 300); // Wacht tot animatie klaar is
+    }
+  };
+
+  // Swipe to close gesture handlers voor de sticky header
+  const [headerSwipeStart, setHeaderSwipeStart] = useState(null);
+  
+  const handleHeaderTouchStart = (e) => {
+    setHeaderSwipeStart({
+      y: e.touches[0].clientY,
+      time: Date.now()
+    });
+  };
+
+  const handleHeaderTouchMove = (e) => {
+    if (!headerSwipeStart) return;
+    
+    const deltaY = e.touches[0].clientY - headerSwipeStart.y;
+    const deltaTime = Date.now() - headerSwipeStart.time;
+    
+    // Als we snel omlaag vegen (swipe down), sluit de sheet
+    if (deltaY > 50 && deltaTime < 300) {
+      closeVacature();
+      setHeaderSwipeStart(null);
+    }
+  };
+
+  const handleHeaderTouchEnd = () => {
+    setHeaderSwipeStart(null);
+  };
+
+  // Reset scrollpositie functie
+  const resetScrollPosition = () => {
+    if (scrollContainerRef.current) {
+      // Gebruik smooth scrolling voor betere UX
+      scrollContainerRef.current.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  // Helper functie voor het sluiten van vacature met scroll reset
+  const closeVacature = () => {
+    setSelectedVacature(null);
+    setShowSollicitatieForm(false);
+    resetScrollPosition();
+  };
+
   // Update popup height wanneer vacature wordt geselecteerd
   useEffect(() => {
-    if (selectedVacature && popupHeight < 70) {
-      setPopupHeight(70);
-    } else if (!selectedVacature && popupHeight > 35) {
+    if (selectedVacature) {
+      // Start altijd in preview mode
+      setPopupHeight(PREVIEW_HEIGHT);
+      setIsExpanded(false);
+      // Reset scroll naar bovenkant bij nieuwe vacature
+      resetScrollPosition();
+    } else {
+      // Reset wanneer geen vacature geselecteerd
       setPopupHeight(35);
+      setIsExpanded(false);
     }
   }, [selectedVacature]);
+
+  // Reset scrollpositie bij wijziging van sollicitatieformulier state
+  useEffect(() => {
+    resetScrollPosition();
+  }, [showSollicitatieForm]);
 
   return (
     <>
@@ -395,17 +584,17 @@ export default function Vacatures() {
 
       <div className="flex flex-col h-screen bg-background">
         {/* Header */}
-        <header className="fixed top-0 left-0 w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white py-4 px-6 flex justify-between items-center z-50 shadow-md">
-          <div className="flex items-center space-x-3">
-            <span className="text-2xl font-semibold">Vacatures</span>
-            <span className="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wide">
+        <header className="fixed top-0 left-0 w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white py-2 px-4 flex justify-between items-center z-50 shadow-md sm:py-3 sm:px-6">
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <span className="text-lg font-semibold sm:text-xl md:text-2xl">Vacatures</span>
+            <span className="bg-green-100 text-green-800 text-xs font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide sm:px-2 sm:py-1">
               BETA
             </span>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <a 
               href="/" 
-              className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition-colors font-medium"
+              className="bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-lg transition-colors font-medium text-sm sm:px-4 sm:py-2 sm:text-base"
             >
               Terug naar Facility Finder
             </a>
@@ -439,7 +628,7 @@ export default function Vacatures() {
         )}
 
         {/* Main content area */}
-        <div className="h-screen bg-background pt-[60px]">
+        <div className="h-screen bg-background pt-[48px] sm:pt-[56px] md:pt-[60px]">
           {/* Desktop layout */}
           <div className="hidden lg:flex w-full h-full">
             {/* Kaart sectie - links */}
@@ -484,7 +673,7 @@ export default function Vacatures() {
                             <p className="text-purple-600 font-medium text-lg">{selectedVacature.bedrijfsnaam || 'Onbekend bedrijf'}</p>
                           </div>
                           <button
-                            onClick={() => setSelectedVacature(null)}
+                            onClick={closeVacature}
                             className="text-gray-400 hover:text-gray-600 transition-colors p-2"
                           >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -521,13 +710,13 @@ export default function Vacatures() {
                           <h3 className="text-lg font-semibold text-gray-900 mb-3">Over deze vacature</h3>
                           <p className="text-gray-700 leading-relaxed mb-4">{selectedVacature.intro}</p>
                           
-                          {/* Volledige beschrijving */}
-                          {selectedVacature.beschrijving && (
-                            <div 
-                              className="text-gray-700 leading-relaxed vacature-content"
-                              dangerouslySetInnerHTML={{ __html: selectedVacature.beschrijving }}
-                            />
-                          )}
+                        {/* Volledige beschrijving */}
+                        {selectedVacature.beschrijving && (
+                          <div 
+                            className="vacature-html-content"
+                            dangerouslySetInnerHTML={{ __html: selectedVacature.beschrijving }}
+                          />
+                        )}
                         </div>
 
                         {/* Actie knoppen */}
@@ -539,7 +728,7 @@ export default function Vacatures() {
                             Meer informatie aanvragen
                           </button>
                           <button
-                            onClick={() => setSelectedVacature(null)}
+                            onClick={closeVacature}
                             className="w-full border border-gray-300 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-50 transition-colors"
                           >
                             Terug naar overzicht
@@ -904,60 +1093,76 @@ export default function Vacatures() {
 
             {/* Bottom popup - vacature lijst of details */}
             <div 
-              className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl z-40 flex flex-col transition-all duration-200 ease-out select-none"
+              className={`absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl z-40 flex flex-col select-none ${
+                isDragging ? 'transition-none' : 'transition-all duration-300 ease-out'
+              }`}
               style={{
                 height: `${popupHeight}vh`,
-                minHeight: '200px'
+                minHeight: isExpanded ? '95vh' : '15vh'
               }}
             >
               {/* Drag handle - sleepbaar */}
               <div 
-                className="flex justify-center py-4 cursor-grab active:cursor-grabbing hover:bg-gray-50 rounded-t-3xl touch-none"
+                className="flex justify-center py-3 sm:py-4 cursor-grab active:cursor-grabbing hover:bg-gray-50 rounded-t-3xl touch-none"
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
                 onMouseDown={handleMouseDown}
               >
-                <div className={`w-12 h-1.5 rounded-full transition-colors ${
+                <div className={`w-10 h-1 sm:w-12 sm:h-1.5 rounded-full transition-colors ${
                   isDragging ? 'bg-purple-400' : 'bg-gray-300'
                 }`}></div>
               </div>
 
               {selectedVacature ? (
                 /* Vacature details */
-                <div className="flex-1 overflow-y-auto px-6 pb-6">
-                  {!showSollicitatieForm ? (
-                    <>
-                      {/* Vacature header */}
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <h2 className="text-xl font-bold text-gray-900 mb-1">{selectedVacature.titel}</h2>
-                          <p className="text-purple-600 font-medium">{selectedVacature.bedrijfsnaam || 'Onbekend bedrijf'}</p>
-                        </div>
-                        <button
-                          onClick={() => setSelectedVacature(null)}
-                          className="text-gray-400 hover:text-gray-600 p-2 ml-2"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
+                <div className="flex-1 flex flex-col">
+                  {/* Sticky header met sluitknop */}
+                  <div 
+                    className="sticky top-0 bg-white z-10 px-4 pt-2 pb-3 sm:px-6 border-b border-gray-100"
+                    onTouchStart={handleHeaderTouchStart}
+                    onTouchMove={handleHeaderTouchMove}
+                    onTouchEnd={handleHeaderTouchEnd}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">{selectedVacature.titel}</h2>
+                        <p className="text-purple-600 font-medium text-sm sm:text-base">{selectedVacature.bedrijfsnaam || 'Onbekend bedrijf'}</p>
                       </div>
+                      <button
+                        onClick={closeVacature}
+                        className="text-gray-400 hover:text-gray-600 p-1.5 sm:p-2 ml-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow"
+                      >
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Scrollable content */}
+                  <div 
+                    ref={scrollContainerRef}
+                    className="flex-1 overflow-y-auto px-4 pb-4 sm:px-6 sm:pb-6"
+                    onScroll={handleScroll}
+                  >
+                    {!showSollicitatieForm ? (
+                      <>
 
                       {/* Vacature details */}
-                      <div className="grid grid-cols-2 gap-3 mb-4">
-                        <div className="flex items-center text-gray-600 text-sm">
-                          <FiMapPin className="w-4 h-4 mr-2 text-purple-500" />
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 mb-3 sm:mb-4">
+                        <div className="flex items-center text-gray-600 text-xs sm:text-sm">
+                          <FiMapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-2 text-purple-500" />
                           <span>{selectedVacature.locatie}</span>
                         </div>
-                        <div className="flex items-center text-gray-600 text-sm">
-                          <FiBriefcase className="w-4 h-4 mr-2 text-purple-500" />
+                        <div className="flex items-center text-gray-600 text-xs sm:text-sm">
+                          <FiBriefcase className="w-3 h-3 sm:w-4 sm:h-4 mr-2 text-purple-500" />
                           <span>{getNiveauLabel(selectedVacature.niveau)}</span>
                         </div>
                       </div>
 
                       {/* Type badge */}
-                      <div className="mb-4">
+                      <div className="mb-3 sm:mb-4">
                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                           selectedVacature.type === 'fulltime' ? 'bg-green-100 text-green-800' :
                           selectedVacature.type === 'parttime' ? 'bg-blue-100 text-blue-800' :
@@ -967,30 +1172,31 @@ export default function Vacatures() {
                         </span>
                       </div>
 
-                      {/* Intro */}
-                      <div className="mb-4">
-                        <p className="text-gray-700 text-sm leading-relaxed mb-3">{selectedVacature.intro}</p>
+                      {/* Vacature intro */}
+                      <div className="mb-4 sm:mb-6">
+                        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">Over deze vacature</h3>
+                        <p className="text-gray-700 text-base leading-relaxed mb-4">{selectedVacature.intro}</p>
                         
                         {/* Volledige beschrijving */}
                         {selectedVacature.beschrijving && (
                           <div 
-                            className="text-gray-700 text-sm leading-relaxed vacature-content"
+                            className="vacature-html-content"
                             dangerouslySetInnerHTML={{ __html: selectedVacature.beschrijving }}
                           />
                         )}
                       </div>
 
                      {/* CTA knoppen */}
-                     <div className="space-y-3 pt-4">
+                     <div className="space-y-2 sm:space-y-3 pt-3 sm:pt-4">
                        <button
                          onClick={() => setShowSollicitatieForm(true)}
-                         className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-6 rounded-lg font-medium transition-colors"
+                         className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-medium transition-colors text-sm sm:text-base"
                        >
                          Meer informatie aanvragen
                        </button>
                        <button
-                         onClick={() => setSelectedVacature(null)}
-                         className="w-full border border-gray-300 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-50 transition-colors"
+                         onClick={closeVacature}
+                         className="w-full border border-gray-300 text-gray-700 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base"
                        >
                          Terug naar overzicht
                        </button>
@@ -1000,8 +1206,20 @@ export default function Vacatures() {
                          Het eerste contact is vrijblijvend en nog geen officiële sollicitatie
                        </p>
                      </div>
-                    </>
-                  ) : (
+
+                     {/* Scroll indicator voor preview mode */}
+                     {!isExpanded && (
+                       <div className="flex justify-center py-3 border-t border-gray-100 bg-gray-50">
+                         <div className="flex items-center text-xs text-gray-500 space-x-2">
+                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7l4-4m0 0l4 4m-4-4v18" />
+                           </svg>
+                           <span>Sleep omhoog of scroll voor meer</span>
+                         </div>
+                       </div>
+                     )}
+                      </>
+                    ) : (
                     /* Sollicitatie formulier - mobile version */
                     <>
                       <div className="flex items-center justify-between mb-4">
@@ -1085,26 +1303,27 @@ export default function Vacatures() {
                         </div>
                       </form>
                     </>
-                  )}
+                    )}
+                  </div>
                 </div>
               ) : (
                 /* Vacature lijst */
                 <div className="flex-1 overflow-y-auto">
                   {/* Header met filter */}
-                  <div className="px-6 pb-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-bold text-gray-900">Vacatures</h3>
-                      <span className="text-sm text-gray-600">
+                  <div className="px-4 pb-3 sm:px-6 sm:pb-4">
+                    <div className="flex items-center justify-between mb-3 sm:mb-4">
+                      <h3 className="text-base sm:text-lg font-bold text-gray-900">Vacatures</h3>
+                      <span className="text-xs sm:text-sm text-gray-600">
                         {filteredVacatures.length} gevonden
                       </span>
                     </div>
                     
                     {/* Quick filters */}
-                    <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-3 sm:mb-4">
                       <select
                         value={filters.niveau}
                         onChange={(e) => handleFilterChange('niveau', e.target.value)}
-                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                        className="px-2 py-1.5 sm:px-3 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-xs sm:text-sm"
                       >
                         <option value="">Alle niveaus</option>
                         <option value="starter">Starter</option>
@@ -1115,7 +1334,7 @@ export default function Vacatures() {
                       <select
                         value={filters.type}
                         onChange={(e) => handleFilterChange('type', e.target.value)}
-                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                        className="px-2 py-1.5 sm:px-3 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-xs sm:text-sm"
                       >
                         <option value="">Alle types</option>
                         <option value="fulltime">Fulltime</option>
@@ -1126,19 +1345,19 @@ export default function Vacatures() {
                   </div>
 
                   {/* Vacature lijst */}
-                  <div className="px-6 pb-6 space-y-3">
+                  <div className="px-4 pb-4 space-y-2 sm:px-6 sm:pb-6 sm:space-y-3">
                     {filteredVacatures.map((vacature) => (
                       <div 
                         key={vacature.id} 
-                        className="bg-gray-50 rounded-xl p-4 cursor-pointer hover:bg-gray-100 transition-colors"
+                        className="bg-gray-50 rounded-xl p-3 sm:p-4 cursor-pointer hover:bg-gray-100 transition-colors"
                         onClick={() => handleSelectVacature(vacature)}
                       >
-                        <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-start justify-between mb-2 sm:mb-3">
                           <div className="flex-1">
                             <h4 className="font-semibold text-gray-900 text-sm mb-1">{vacature.titel}</h4>
-                            <p className="text-purple-600 font-medium text-xs">{vacature.bedrijfsnaam || 'Onbekend bedrijf'}</p>
+                            <p className="text-purple-600 font-medium text-sm">{vacature.bedrijfsnaam || 'Onbekend bedrijf'}</p>
                           </div>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          <span className={`px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-xs font-medium ${
                             vacature.type === 'fulltime' ? 'bg-green-100 text-green-800' :
                             vacature.type === 'parttime' ? 'bg-blue-100 text-blue-800' :
                             'bg-orange-100 text-orange-800'
@@ -1147,7 +1366,7 @@ export default function Vacatures() {
                           </span>
                         </div>
                         
-                        <div className="flex items-center text-gray-600 text-xs mb-2">
+                        <div className="flex items-center text-gray-600 text-sm mb-2">
                           <FiMapPin className="w-3 h-3 mr-1" />
                           <span>{vacature.locatie}</span>
                           <span className="mx-2">•</span>
@@ -1155,16 +1374,16 @@ export default function Vacatures() {
                           <span>{getNiveauLabel(vacature.niveau)}</span>
                         </div>
                         
-                        <p className="text-gray-700 text-xs line-clamp-2 leading-relaxed">{vacature.intro}</p>
+                        <p className="text-gray-700 text-sm line-clamp-2 leading-relaxed">{vacature.intro}</p>
                       </div>
                     ))}
 
                     {/* Vacature alerts inschrijving - Mobile */}
-                    <div className="mt-6 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-4 text-center">
-                      <h3 className="text-lg font-bold text-gray-900 mb-3">
+                    <div className="mt-4 sm:mt-6 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-3 sm:p-4 text-center">
+                      <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3">
                         Blijf op de hoogte van nieuwe vacatures
                       </h3>
-                      <p className="text-gray-600 text-sm mb-4">
+                      <p className="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4">
                         Schrijf je in voor onze vacature-alerts en ontvang als eerste de nieuwste facilitaire vacatures direct in je inbox.
                       </p>
                       
@@ -1172,7 +1391,7 @@ export default function Vacatures() {
                         href="https://subscribepage.io/vacature-alert"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-block bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors text-sm"
+                        className="inline-block bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-medium transition-colors text-xs sm:text-sm"
                       >
                         Inschrijven voor alerts
                       </a>

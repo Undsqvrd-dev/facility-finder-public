@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import Sidebar from "./Sidebar";
 import CompanyPopup from "./CompanyPopup";
-import MobileMenuButton from "./MobileMenuButton";
+import SidebarToggle from "./SidebarToggle";
 import { event } from "../lib/gtm";
 
 const Map = dynamic(() => import("./Map"), { ssr: false });
@@ -95,7 +95,7 @@ const FacilityFinder = ({ mode = "public", user = null }) => {
       <div className={`flex flex-col h-screen bg-background ${mode === "public" ? "pt-[60px]" : ""}`}>
         <div className="flex-1 relative z-10">
           <div className="flex h-full">
-            <MobileMenuButton 
+            <SidebarToggle 
               isOpen={isSidebarOpen} 
               onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
             />

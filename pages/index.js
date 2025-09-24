@@ -3,7 +3,7 @@ import dynamic from "next/dynamic";
 import Head from "next/head";
 import Sidebar from "@/components/Sidebar";
 import CompanyPopup from "@/components/CompanyPopup";
-import MobileMenuButton from "@/components/MobileMenuButton";
+import SidebarToggle from "../components/SidebarToggle";
 
 const Map = dynamic(() => import("../components/Map"), { ssr: false });
 
@@ -113,7 +113,7 @@ export default function Home() {
       <div className="flex flex-col h-screen bg-background pt-[60px]">
         <div className="flex-1 relative z-10">
           <div className="flex h-full">
-            <MobileMenuButton 
+            <SidebarToggle 
               isOpen={isSidebarOpen} 
               onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
             />

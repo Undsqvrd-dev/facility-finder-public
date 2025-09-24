@@ -324,8 +324,8 @@ const VacatureMap = ({
       </MapContainer>
       
       {/* Disclaimer rechtsboven */}
-      <div className="absolute top-4 right-4 z-50 max-w-sm">
-        <div className="bg-white/90 backdrop-blur-sm text-gray-700 text-xs px-3 py-2 rounded-lg shadow-md border border-gray-200 leading-relaxed">
+      <div className="absolute top-4 right-4 z-10 max-w-xs sm:max-w-sm">
+        <div className="bg-white bg-opacity-80 text-gray-700 text-xs px-2 py-2 rounded-md shadow-sm border border-gray-200 leading-relaxed sm:text-sm sm:px-3">
           ⚙️ <span className="font-medium">Kleine disclaimer:</span> de pin op de kaart is een benadering. De plaats klopt, maar de precieze locatie nog niet helemaal.
         </div>
       </div>
