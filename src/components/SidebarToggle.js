@@ -7,24 +7,25 @@ const SidebarToggle = ({ isOpen, onClick }) => {
     <div className="relative">
       {/* Toggle Button */}
       <button
-        className={`fixed z-50 bg-white border border-gray-300 shadow-md transition-all duration-300 ease-in-out hover:shadow-lg hover:bg-gray-50 group ${
+        className={`fixed z-50 bg-white border border-gray-300 shadow-md hover:shadow-lg hover:bg-gray-50 group rounded-md ${
           isOpen 
-            ? 'left-[300px] rounded-l-md border-r-0' // Aan de rechterkant van de sidebar
-            : 'left-0 rounded-r-md border-l-0' // Aan de linkerkant van het scherm
+            ? 'left-[300px]' // Aan de rechterkant van de sidebar
+            : 'left-0' // Aan de linkerkant van het scherm
         } w-6 h-16 sm:w-8 sm:h-20 md:w-8 md:h-24 flex items-center justify-center`}
         style={{
           top: '50%',
           transform: 'translateY(-50%)',
+          transition: 'left 300ms ease-in-out, box-shadow 200ms ease-in-out, background-color 200ms ease-in-out'
         }}
         onClick={onClick}
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
         aria-label={isOpen ? 'Sluit lijst' : 'Open lijst'}
       >
-        {/* Chevron Icon */}
+        {/* Chevron Icon - wijst naar de richting van de actie */}
         <svg
           className={`w-3 h-3 sm:w-4 sm:h-4 text-gray-600 transition-transform duration-300 ${
-            isOpen ? 'rotate-0' : 'rotate-180'
+            isOpen ? '' : 'rotate-180'
           }`}
           fill="none"
           stroke="currentColor"

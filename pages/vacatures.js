@@ -106,6 +106,22 @@ const mockVacatures = [
   }
 ];
 
+// Helper functie om HTML content te stylen
+const styleHtmlContent = (htmlContent) => {
+  if (!htmlContent) return '';
+  
+  return htmlContent
+    .replace(/<h3/g, '<h3 style="font-size: 1.125rem; font-weight: 600; color: #374151; margin-top: 1.5rem; margin-bottom: 0.75rem; display: block;"')
+    .replace(/<h2/g, '<h2 style="font-size: 1.25rem; font-weight: 700; color: #1f2937; margin-top: 1.5rem; margin-bottom: 0.75rem; display: block;"')
+    .replace(/<h1/g, '<h1 style="font-size: 1.5rem; font-weight: 700; color: #1f2937; margin-top: 1.5rem; margin-bottom: 0.75rem; display: block;"')
+    .replace(/<p/g, '<p style="margin-bottom: 1rem; line-height: 1.6; color: #374151; display: block; font-size: 1rem;"')
+    .replace(/<ul/g, '<ul style="margin-bottom: 1rem; padding-left: 1.5rem; list-style-type: disc; list-style-position: outside; display: block;"')
+    .replace(/<ol/g, '<ol style="margin-bottom: 1rem; padding-left: 1.5rem; list-style-type: decimal; list-style-position: outside; display: block;"')
+    .replace(/<li/g, '<li style="margin-bottom: 0.5rem; line-height: 1.6; color: #374151; display: list-item; font-size: 1rem;"')
+    .replace(/<strong/g, '<strong style="font-weight: 600;"')
+    .replace(/<b/g, '<b style="font-weight: 600;"');
+};
+
 export default function Vacatures() {
   const [vacatures, setVacatures] = useState([]);
   const [filteredVacatures, setFilteredVacatures] = useState([]);
@@ -128,7 +144,7 @@ export default function Vacatures() {
     motivatie: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [popupHeight, setPopupHeight] = useState(35); // percentage van viewport height
+  const [popupHeight, setPopupHeight] = useState(20); // percentage van viewport height
   const [isExpanded, setIsExpanded] = useState(false); // Track of sheet volledig uitgevouwen is
   const [isScrolling, setIsScrolling] = useState(false); // Track scroll state
   const hoverTimeoutRef = useRef(null);
@@ -355,8 +371,8 @@ export default function Vacatures() {
   const [lastMoveTime, setLastMoveTime] = useState(0);
   const [lastY, setLastY] = useState(0);
 
-  const snapPositions = [15, 95]; // Compacte preview (15%) en volledig uitgevouwen (95%)
-  const PREVIEW_HEIGHT = 15; // Compacte preview hoogte
+  const snapPositions = [20, 95]; // Compacte preview (20%) en volledig uitgevouwen (95%)
+  const PREVIEW_HEIGHT = 20; // Compacte preview hoogte
   const EXPANDED_HEIGHT = 95; // Volledig uitgevouwen hoogte
 
   const handleTouchStart = (e) => {
@@ -401,7 +417,7 @@ export default function Vacatures() {
     let targetHeight = PREVIEW_HEIGHT;
     
     // Als we dichter bij expanded zijn of omhoog slepen
-    if (popupHeight > 55 || (dragVelocity < -0.8 && popupHeight > 25)) {
+    if (popupHeight > 55 || (dragVelocity < -0.8 && popupHeight > 30)) {
       targetHeight = EXPANDED_HEIGHT;
       setIsExpanded(true);
     } else if (dragVelocity > 0.8 || popupHeight < 55) {
@@ -411,7 +427,7 @@ export default function Vacatures() {
     }
     
     // Special case: als we heel ver omlaag slepen, sluit de sheet
-    if (dragVelocity > 1.5 && popupHeight < 30) {
+    if (dragVelocity > 1.5 && popupHeight < 25) {
       closeVacature();
       return;
     }
@@ -461,7 +477,7 @@ export default function Vacatures() {
     let targetHeight = PREVIEW_HEIGHT;
     
     // Als we dichter bij expanded zijn of omhoog slepen
-    if (popupHeight > 55 || (dragVelocity < -0.8 && popupHeight > 25)) {
+    if (popupHeight > 55 || (dragVelocity < -0.8 && popupHeight > 30)) {
       targetHeight = EXPANDED_HEIGHT;
       setIsExpanded(true);
     } else if (dragVelocity > 0.8 || popupHeight < 55) {
@@ -471,7 +487,7 @@ export default function Vacatures() {
     }
     
     // Special case: als we heel ver omlaag slepen, sluit de sheet
-    if (dragVelocity > 1.5 && popupHeight < 30) {
+    if (dragVelocity > 1.5 && popupHeight < 25) {
       closeVacature();
       return;
     }
@@ -714,7 +730,12 @@ export default function Vacatures() {
                         {selectedVacature.beschrijving && (
                           <div 
                             className="vacature-html-content"
-                            dangerouslySetInnerHTML={{ __html: selectedVacature.beschrijving }}
+                            style={{
+                              color: '#374151',
+                              fontSize: '1rem',
+                              lineHeight: '1.6'
+                            }}
+                            dangerouslySetInnerHTML={{ __html: styleHtmlContent(selectedVacature.beschrijving) }}
                           />
                         )}
                         </div>
@@ -1098,7 +1119,7 @@ export default function Vacatures() {
               }`}
               style={{
                 height: `${popupHeight}vh`,
-                minHeight: isExpanded ? '95vh' : '15vh'
+                minHeight: isExpanded ? '95vh' : '20vh'
               }}
             >
               {/* Drag handle - sleepbaar */}
@@ -1119,24 +1140,25 @@ export default function Vacatures() {
                 <div className="flex-1 flex flex-col">
                   {/* Sticky header met sluitknop */}
                   <div 
-                    className="sticky top-0 bg-white z-10 px-4 pt-2 pb-3 sm:px-6 border-b border-gray-100"
+                    className="sticky top-0 bg-white z-20 px-4 pt-3 pb-3 sm:px-6 border-b border-gray-100"
                     onTouchStart={handleHeaderTouchStart}
                     onTouchMove={handleHeaderTouchMove}
                     onTouchEnd={handleHeaderTouchEnd}
                   >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">{selectedVacature.titel}</h2>
-                        <p className="text-purple-600 font-medium text-sm sm:text-base">{selectedVacature.bedrijfsnaam || 'Onbekend bedrijf'}</p>
-                      </div>
-                      <button
-                        onClick={closeVacature}
-                        className="text-gray-400 hover:text-gray-600 p-1.5 sm:p-2 ml-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow"
-                      >
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
+                    {/* Close button - rechtsboven absolute */}
+                    <button
+                      onClick={closeVacature}
+                      className="absolute top-3 right-3 sm:right-4 text-gray-400 hover:text-gray-600 p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-all z-30"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                    
+                    {/* Titel en bedrijf */}
+                    <div className="pr-12">
+                      <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">{selectedVacature.titel}</h2>
+                      <p className="text-purple-600 font-medium text-sm sm:text-base">{selectedVacature.bedrijfsnaam || 'Onbekend bedrijf'}</p>
                     </div>
                   </div>
 
@@ -1145,6 +1167,10 @@ export default function Vacatures() {
                     ref={scrollContainerRef}
                     className="flex-1 overflow-y-auto px-4 pb-4 sm:px-6 sm:pb-6"
                     onScroll={handleScroll}
+                    style={{ 
+                      maxHeight: isExpanded ? 'calc(95vh - 120px)' : 'calc(20vh - 80px)',
+                      minHeight: isExpanded ? 'calc(95vh - 120px)' : 'calc(20vh - 80px)'
+                    }}
                   >
                     {!showSollicitatieForm ? (
                       <>
@@ -1181,7 +1207,12 @@ export default function Vacatures() {
                         {selectedVacature.beschrijving && (
                           <div 
                             className="vacature-html-content"
-                            dangerouslySetInnerHTML={{ __html: selectedVacature.beschrijving }}
+                            style={{
+                              color: '#374151',
+                              fontSize: '1rem',
+                              lineHeight: '1.6'
+                            }}
+                            dangerouslySetInnerHTML={{ __html: styleHtmlContent(selectedVacature.beschrijving) }}
                           />
                         )}
                       </div>

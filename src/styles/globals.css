@@ -338,19 +338,32 @@
   }
 }
 
-/* Specifieke styling voor HTML content via dangerouslySetInnerHTML */
+/* CRITICAL: CSS Reset voor HTML content - Override alle Tailwind resets */
+.vacature-html-content * {
+  all: revert !important;
+  box-sizing: border-box !important;
+}
+
+/* FORCE STYLING - Specifieke styling voor HTML content via dangerouslySetInnerHTML */
 .vacature-html-content h1,
 .vacature-html-content h2,
 .vacature-html-content h3,
 .vacature-html-content h4,
 .vacature-html-content h5,
-.vacature-html-content h6 {
+.vacature-html-content h6,
+div.vacature-html-content h1,
+div.vacature-html-content h2,
+div.vacature-html-content h3,
+div.vacature-html-content h4,
+div.vacature-html-content h5,
+div.vacature-html-content h6 {
   font-weight: 600 !important;
   color: #1f2937 !important;
   margin-top: 1.5rem !important;
   margin-bottom: 0.75rem !important;
   line-height: 1.3 !important;
   display: block !important;
+  font-family: inherit !important;
 }
 
 .vacature-html-content h1:first-child,
@@ -358,59 +371,77 @@
 .vacature-html-content h3:first-child,
 .vacature-html-content h4:first-child,
 .vacature-html-content h5:first-child,
-.vacature-html-content h6:first-child {
+.vacature-html-content h6:first-child,
+div.vacature-html-content h1:first-child,
+div.vacature-html-content h2:first-child,
+div.vacature-html-content h3:first-child,
+div.vacature-html-content h4:first-child,
+div.vacature-html-content h5:first-child,
+div.vacature-html-content h6:first-child {
   margin-top: 0 !important;
 }
 
-.vacature-html-content h1 {
+.vacature-html-content h1,
+div.vacature-html-content h1 {
   font-size: 1.5rem !important;
   font-weight: 700 !important;
 }
 
-.vacature-html-content h2 {
+.vacature-html-content h2,
+div.vacature-html-content h2 {
   font-size: 1.25rem !important;
   font-weight: 700 !important;
 }
 
-.vacature-html-content h3 {
+.vacature-html-content h3,
+div.vacature-html-content h3 {
   font-size: 1.125rem !important;
   font-weight: 600 !important;
   color: #374151 !important;
 }
 
-.vacature-html-content h4 {
+.vacature-html-content h4,
+div.vacature-html-content h4 {
   font-size: 1rem !important;
   font-weight: 600 !important;
 }
 
-.vacature-html-content p {
+.vacature-html-content p,
+div.vacature-html-content p {
   margin-bottom: 1rem !important;
   line-height: 1.6 !important;
   color: #374151 !important;
   display: block !important;
+  font-size: 1rem !important;
 }
 
 .vacature-html-content ul,
-.vacature-html-content ol {
+.vacature-html-content ol,
+div.vacature-html-content ul,
+div.vacature-html-content ol {
   margin-bottom: 1rem !important;
   padding-left: 1.5rem !important;
   display: block !important;
   list-style-position: outside !important;
 }
 
-.vacature-html-content ul {
+.vacature-html-content ul,
+div.vacature-html-content ul {
   list-style-type: disc !important;
 }
 
-.vacature-html-content ol {
+.vacature-html-content ol,
+div.vacature-html-content ol {
   list-style-type: decimal !important;
 }
 
-.vacature-html-content li {
+.vacature-html-content li,
+div.vacature-html-content li {
   margin-bottom: 0.5rem !important;
   line-height: 1.6 !important;
   color: #374151 !important;
   display: list-item !important;
+  font-size: 1rem !important;
 }
 
 .vacature-html-content strong,
