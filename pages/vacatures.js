@@ -273,7 +273,13 @@ export default function Vacatures() {
   };
 
   const handleMapClick = () => {
-    closeVacature();
+    // Inschuiven van drawer naar preview hoogte wanneer op kaart wordt getikt (alleen op mobiel)
+    if (window.innerWidth <= 768 && popupHeight > PREVIEW_HEIGHT) {
+      setPopupHeight(PREVIEW_HEIGHT);
+      setIsExpanded(false);
+    } else {
+      closeVacature();
+    }
   };
 
   const handleSollicitatieFormChange = (e) => {
@@ -371,9 +377,9 @@ export default function Vacatures() {
   const [lastMoveTime, setLastMoveTime] = useState(0);
   const [lastY, setLastY] = useState(0);
 
-  const snapPositions = [20, 95]; // Compacte preview (20%) en volledig uitgevouwen (95%)
+  const snapPositions = [20, 80]; // Compacte preview (20%) en volledig uitgevouwen (80%)
   const PREVIEW_HEIGHT = 20; // Compacte preview hoogte
-  const EXPANDED_HEIGHT = 95; // Volledig uitgevouwen hoogte
+  const EXPANDED_HEIGHT = 80; // Volledig uitgevouwen hoogte (maximaal 80% voor kaart zichtbaarheid)
 
   const handleTouchStart = (e) => {
     e.preventDefault();
@@ -403,7 +409,7 @@ export default function Vacatures() {
     }
     
     let newHeight = startHeight + deltaHeight;
-    newHeight = Math.max(10, Math.min(100, newHeight)); // Van 10% tot 100% voor preview tot volledig
+    newHeight = Math.max(10, Math.min(80, newHeight)); // Van 10% tot 80% voor preview tot volledig
     
     setPopupHeight(newHeight);
     setLastY(currentY);
@@ -463,7 +469,7 @@ export default function Vacatures() {
     }
     
     let newHeight = startHeight + deltaHeight;
-    newHeight = Math.max(10, Math.min(100, newHeight)); // Van 10% tot 100% voor preview tot volledig
+    newHeight = Math.max(10, Math.min(80, newHeight)); // Van 10% tot 80% voor preview tot volledig
     
     setPopupHeight(newHeight);
     setLastY(currentY);
@@ -1119,7 +1125,8 @@ export default function Vacatures() {
               }`}
               style={{
                 height: `${popupHeight}vh`,
-                minHeight: isExpanded ? '95vh' : '20vh'
+                minHeight: isExpanded ? '80vh' : '20vh',
+                maxHeight: '80vh'
               }}
             >
               {/* Drag handle - sleepbaar */}
@@ -1165,11 +1172,11 @@ export default function Vacatures() {
                   {/* Scrollable content */}
                   <div 
                     ref={scrollContainerRef}
-                    className="flex-1 overflow-y-auto px-4 pb-4 sm:px-6 sm:pb-6"
+                    className="flex-1 overflow-y-auto px-4 pb-8 sm:px-6 sm:pb-10"
                     onScroll={handleScroll}
                     style={{ 
-                      maxHeight: isExpanded ? 'calc(95vh - 120px)' : 'calc(20vh - 80px)',
-                      minHeight: isExpanded ? 'calc(95vh - 120px)' : 'calc(20vh - 80px)'
+                      maxHeight: isExpanded ? 'calc(80vh - 120px)' : 'calc(20vh - 80px)',
+                      minHeight: isExpanded ? 'calc(80vh - 120px)' : 'calc(20vh - 80px)'
                     }}
                   >
                     {!showSollicitatieForm ? (
@@ -1376,7 +1383,7 @@ export default function Vacatures() {
                   </div>
 
                   {/* Vacature lijst */}
-                  <div className="px-4 pb-4 space-y-2 sm:px-6 sm:pb-6 sm:space-y-3">
+                  <div className="px-4 pb-8 space-y-2 sm:px-6 sm:pb-10 sm:space-y-3">
                     {filteredVacatures.map((vacature) => (
                       <div 
                         key={vacature.id} 
@@ -1410,7 +1417,7 @@ export default function Vacatures() {
                     ))}
 
                     {/* Vacature alerts inschrijving - Mobile */}
-                    <div className="mt-4 sm:mt-6 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-3 sm:p-4 text-center">
+                    <div className="mt-6 mb-8 sm:mt-8 sm:mb-10 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-3 sm:p-4 text-center">
                       <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3">
                         Blijf op de hoogte van nieuwe vacatures
                       </h3>
