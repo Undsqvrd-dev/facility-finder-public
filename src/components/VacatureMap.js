@@ -93,12 +93,14 @@ const VacatureMap = ({
 
   const getMarkerSize = (zoom, isSelected, isHovered) => {
     let baseSize;
-    if (zoom <= 7) {
-      baseSize = [30, 25];
+    if (zoom <= 6) {
+      baseSize = [25, 20]; // Kleinste markers op zeer lage zoom levels
+    } else if (zoom <= 7) {
+      baseSize = [30, 25]; // Kleine markers op lage zoom levels
     } else if (zoom <= 9) {
-      baseSize = [45, 38];
+      baseSize = [45, 38]; // Middelgroot op medium zoom levels
     } else {
-      baseSize = [60, 50];
+      baseSize = [60, 50]; // Normale grootte op hoge zoom levels
     }
 
     if (isSelected) {

@@ -45,9 +45,10 @@ const FacilityMap = ({ filters, facilities = [], selectedCompany, onSelectCompan
 
   const getMarkerSize = (zoom, isSelected) => {
     let baseSize;
-    if (zoom <= 7) baseSize = [30, 25];
-    else if (zoom <= 9) baseSize = [45, 38];
-    else baseSize = [60, 50];
+    if (zoom <= 6) baseSize = [25, 20]; // Kleinste markers op zeer lage zoom levels
+    else if (zoom <= 7) baseSize = [30, 25]; // Kleine markers op lage zoom levels
+    else if (zoom <= 9) baseSize = [45, 38]; // Middelgroot op medium zoom levels
+    else baseSize = [60, 50]; // Normale grootte op hoge zoom levels
     if (isSelected) return [baseSize[0] * 1.7, baseSize[1] * 1.7];
     return baseSize;
   };
@@ -87,7 +88,7 @@ const FacilityMap = ({ filters, facilities = [], selectedCompany, onSelectCompan
     <MapContainer
       center={[52.1326, 5.2913]}
       zoom={9}
-      minZoom={9}
+      minZoom={6}
       maxBounds={bounds}
       maxBoundsViscosity={1.0}
       className="h-full w-full z-0"
