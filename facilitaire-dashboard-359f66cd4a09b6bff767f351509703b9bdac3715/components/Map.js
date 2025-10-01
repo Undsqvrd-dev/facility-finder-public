@@ -51,12 +51,14 @@ const Map = ({ filters, facilities = [], selectedCompany, onSelectCompany, onCli
 
   const getMarkerSize = (zoom, isSelected) => {
     let baseSize;
-    if (zoom <= 7) {
-      baseSize = [30, 25]; // Veel kleiner op lage zoom levels
+    if (zoom <= 6) {
+      baseSize = [25, 20]; // Kleinste markers op zeer lage zoom levels
+    } else if (zoom <= 7) {
+      baseSize = [30, 25]; // Kleine markers op lage zoom levels
     } else if (zoom <= 9) {
       baseSize = [45, 38]; // Middelgroot op medium zoom levels
     } else {
-      baseSize = [60, 50]; // Kleiner dan voorheen op hoge zoom levels
+      baseSize = [60, 50]; // Normale grootte op hoge zoom levels
     }
 
     // Maak de marker 70% groter als deze geselecteerd is

@@ -7,6 +7,12 @@ module.exports = {
       "./app/**/*.{js,ts,jsx,tsx,mdx}",
       './styles/**/*.css'
     ],
+    safelist: [
+      'vacature-html-content',
+      {
+        pattern: /^vacature-html-content/,
+      }
+    ],
     theme: {
       extend: {
         colors: {
@@ -18,5 +24,7 @@ module.exports = {
         },
       },
     },
-    plugins: [],
+    plugins: [
+      require('@tailwindcss/typography'),
+    ],
 };

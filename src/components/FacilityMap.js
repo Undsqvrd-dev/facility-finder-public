@@ -1,86 +1,60 @@
-import React, { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, useMap, Tooltip, Popup } from "react-leaflet";
+import React, { useState } from "react";
+import { MapContainer, TileLayer, Marker, useMap, Tooltip } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import Image from 'next/image';
 
 const MapUpdater = ({ selectedCompany, onSelectCompany }) => {
   const map = useMap();
   const defaultCenter = [52.1326, 5.2913];
-  const overviewZoom = 9;
-  const companyZoom = 14;
-  const prevCompanyRef = React.useRef(null);
+  const defaultZoom = 9;
 
-  useEffect(() => {
-    // Alleen als er een bedrijf geselecteerd wordt: zoom in
+  React.useEffect(() => {
     if (selectedCompany && selectedCompany.lat && selectedCompany.lng) {
-      map.flyTo([selectedCompany.lat, selectedCompany.lng], companyZoom, {
+      map.flyTo([selectedCompany.lat, selectedCompany.lng], 17, {
+        animate: true,
+        duration: 1.2,
+        easeLinearity: 0.25,
+      });
+    } else {
+      map.flyTo(defaultCenter, defaultZoom, {
         animate: true,
         duration: 1.2,
         easeLinearity: 0.25,
       });
     }
-    // Alleen als een bedrijf wordt weggeklikt (van geselecteerd naar null): zoom uit
-    if (!selectedCompany && prevCompanyRef.current) {
-      map.flyTo(defaultCenter, overviewZoom, {
-        animate: true,
-        duration: 1.2,
-        easeLinearity: 0.25,
-      });
-    }
-    prevCompanyRef.current = selectedCompany;
   }, [selectedCompany, map]);
 
-  // Reset selectie wanneer er wordt uitgezoomd (optioneel, kan je ook verwijderen)
-  useEffect(() => {
+  React.useEffect(() => {
     const handleZoomEnd = () => {
-      // Geen automatische reset meer
+      const currentZoom = map.getZoom();
+      if (currentZoom <= defaultZoom && selectedCompany) {
+        onSelectCompany(null);
+      }
     };
     map.on('zoomend', handleZoomEnd);
     return () => {
       map.off('zoomend', handleZoomEnd);
     };
-  }, [map]);
+  }, [map, selectedCompany, onSelectCompany]);
 
   return null;
 };
 
-const Map = ({ 
-  filters, 
-  facilities = [], 
-  selectedCompany, 
-  onSelectCompany, 
-  onClick, 
-  onDrag, 
-  onZoom,
-  mode = "public"
-}) => {
+const FacilityMap = ({ filters, facilities = [], selectedCompany, onSelectCompany, mode = "public" }) => {
   const [mapZoom, setMapZoom] = useState(9);
 
   const getMarkerSize = (zoom, isSelected) => {
     let baseSize;
-    if (zoom <= 6) {
-      baseSize = [25, 20]; // Kleinste markers op zeer lage zoom levels
-    } else if (zoom <= 7) {
-      baseSize = [30, 25]; // Kleine markers op lage zoom levels
-    } else if (zoom <= 9) {
-      baseSize = [45, 38]; // Middelgroot op medium zoom levels
-    } else {
-      baseSize = [60, 50]; // Normale grootte op hoge zoom levels
-    }
-
-    // Maak de marker 70% groter als deze geselecteerd is
-    if (isSelected) {
-      return [baseSize[0] * 1.7, baseSize[1] * 1.7];
-    }
+    if (zoom <= 6) baseSize = [25, 20]; // Kleinste markers op zeer lage zoom levels
+    else if (zoom <= 7) baseSize = [30, 25]; // Kleine markers op lage zoom levels
+    else if (zoom <= 9) baseSize = [45, 38]; // Middelgroot op medium zoom levels
+    else baseSize = [60, 50]; // Normale grootte op hoge zoom levels
+    if (isSelected) return [baseSize[0] * 1.7, baseSize[1] * 1.7];
     return baseSize;
   };
 
-  useEffect(() => {
-    // Verwijder de oude icon URL
+  React.useEffect(() => {
     delete L.Icon.Default.prototype._getIconUrl;
-    
-    // Configureer de nieuwe icon URLs
     L.Icon.Default.mergeOptions({
       iconRetinaUrl: '/leaflet/marker-icon-2x.png',
       iconUrl: '/leaflet/marker-icon.png',
@@ -93,27 +67,14 @@ const Map = ({
     });
   }, []);
 
-  // Definieer de grenzen voor een regionaal overzicht van West-Europa (zoals in screenshot)
   const bounds = [
-    [49.0, -2.0], // Zuidwestelijke grens (net onder België, inclusief een klein stukje UK)
-    [56.0, 12.0], // Noordoostelijke grens (net boven Noord-Duitsland)
+    [50.75, 3.2],
+    [53.7, 7.22],
   ];
 
   const handleZoomEnd = (e) => {
     setMapZoom(e.target.getZoom());
-    console.log("Current zoom:", e.target.getZoom());
-    onZoom?.();
   };
-
-  const filteredFacilities = facilities.filter((facility) => {
-    if (filters.type !== "Alles" && facility.type !== filters.type) return false;
-    if (filters.branche !== "Alles") {
-      // Split branches op komma's en trim whitespace
-      const facilityBranches = facility.branche.split(',').map(b => b.trim());
-      if (!facilityBranches.includes(filters.branche)) return false;
-    }
-    return true;
-  });
 
   const handleMarkerClick = (company) => {
     if (selectedCompany?.id === company.id) {
@@ -129,12 +90,8 @@ const Map = ({
       zoom={9}
       minZoom={6}
       maxBounds={bounds}
-      maxBoundsViscosity={0.8}
+      maxBoundsViscosity={1.0}
       className="h-full w-full z-0"
-      onClick={() => {
-        onClick?.();
-        onSelectCompany(null);
-      }}
       scrollWheelZoom={true}
       doubleClickZoom={true}
       dragging={true}
@@ -142,21 +99,17 @@ const Map = ({
       zoomDelta={1}
       wheelDebounceTime={100}
       eventHandlers={{
-        zoomend: handleZoomEnd,
-        dragstart: onDrag,
-        dragend: onDrag
+        zoomend: handleZoomEnd
       }}
     >
       <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution="&copy; OpenStreetMap contributors"
+        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
         maxZoom={19}
       />
-
-      {filteredFacilities.map((company) => {
+      {facilities.map((company) => {
         const isSelected = selectedCompany?.id === company.id;
         const [width, height] = getMarkerSize(mapZoom, isSelected);
-        const totalHeight = height + 0; // geen extra padding
         const markerHtml = `
           <div style="
             background: white;
@@ -201,10 +154,9 @@ const Map = ({
           </Marker>
         );
       })}
-
       <MapUpdater selectedCompany={selectedCompany} onSelectCompany={onSelectCompany} />
     </MapContainer>
   );
 };
 
-export default Map;
+export default FacilityMap; 

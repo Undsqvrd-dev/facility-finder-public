@@ -10,6 +10,8 @@
     "download-logos": "node scripts/downloadLogos.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
+    "@tailwindcss/typography": "^0.5.18",
     "@vercel/analytics": "^1.5.0",
     "dotenv": "^16.4.7",
     "framer-motion": "^12.20.2",
@@ -40,6 +42,6 @@
     "tailwindcss": "^3.4.17"
   },
   "engines": {
-    "node": "22.x"
+    "node": "22"
   }
 }
