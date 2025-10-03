@@ -1030,12 +1030,6 @@ export default function Vacatures() {
                           {/* Intro tekst */}
                           <p className="text-gray-700 mb-4 line-clamp-2">{vacature.intro}</p>
 
-                          {/* Datum */}
-                          <div className="flex justify-end items-center mb-4">
-                            <span className="text-sm text-gray-500">
-                              {new Date(vacature.datum).toLocaleDateString('nl-NL')}
-                            </span>
-                          </div>
 
                           {/* Actie knop */}
                           <div className="flex">
