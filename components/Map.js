@@ -46,7 +46,7 @@ const MapUpdater = ({ selectedCompany, onSelectCompany }) => {
   return null;
 };
 
-const Map = ({ filters, facilities = [], selectedCompany, onSelectCompany, onClick, onDrag, onZoom }) => {
+const Map = ({ filters = { type: "Alles", branche: "Alles" }, facilities = [], selectedCompany, onSelectCompany, onClick, onDrag, onZoom }) => {
   const [mapZoom, setMapZoom] = useState(9);
 
   const getMarkerSize = (zoom, isSelected) => {
@@ -97,11 +97,13 @@ const Map = ({ filters, facilities = [], selectedCompany, onSelectCompany, onCli
   };
 
   const filteredFacilities = facilities.filter((facility) => {
-    if (filters.type !== "Alles" && facility.type !== filters.type) return false;
-    if (filters.branche !== "Alles") {
+    if (filters && filters.type && filters.type !== "Alles" && facility.type !== filters.type) return false;
+    if (filters && filters.branche && filters.branche !== "Alles") {
       // Split branches op komma's en trim whitespace
-      const facilityBranches = facility.branche.split(',').map(b => b.trim());
-      if (!facilityBranches.includes(filters.branche)) return false;
+      if (facility.branche) {
+        const facilityBranches = facility.branche.split(',').map(b => b.trim());
+        if (!facilityBranches.includes(filters.branche)) return false;
+      }
     }
     return true;
   });
