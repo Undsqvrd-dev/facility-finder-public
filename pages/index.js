@@ -4,6 +4,7 @@ import Head from "next/head";
 import Menu from "../components/Menu";
 import MenuToggle from "../components/MenuToggle";
 import OrganisatiesMenu from "../components/OrganisatiesMenu";
+import ServicesMenu from "../components/ServicesMenu";
 import CompanyPopup from "../components/CompanyPopup";
 
 const Map = dynamic(() => import("../components/Map"), { ssr: false });
@@ -15,6 +16,7 @@ export default function Home() {
   const [vacatureCount, setVacatureCount] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showOrganisaties, setShowOrganisaties] = useState(false);
+  const [showServices, setShowServices] = useState(false);
 
   useEffect(() => {
     fetch("/api/getFacilities")
@@ -90,6 +92,12 @@ export default function Home() {
     // Optioneel: sluit popup bij interactie met kaart
   };
 
+  const handleServiceFilter = (serviceCategory) => {
+    // Filter de kaart op basis van de geselecteerde service categorie
+    setFilters({ type: "Alles", branche: serviceCategory });
+    setShowServices(false);
+  };
+
   return (
     <>
       <Head>
@@ -99,13 +107,19 @@ export default function Home() {
       <div className="flex flex-col h-screen bg-background">
       <header className="fixed top-0 left-0 w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white py-4 px-6 flex justify-between items-center z-50 shadow-md">
         <span className="text-2xl font-semibold">Facility Finder</span>
-        <div className="flex items-center space-x-4">
-          <a href="/over" className="text-sm text-white hover:underline">
-            Over Facility Finder
-          </a>
-          <a href="https://www.undsqvrd.nl/facility-finder" target="_blank" rel="noopener noreferrer" className="text-sm text-white hover:underline">
-            Powered by UNDSQVRD
-          </a>
+        <div className="flex items-center space-x-3">
+          <button 
+            onClick={() => window.location.href = '/dashboard'}
+            className="text-sm text-white hover:bg-white hover:bg-opacity-20 px-4 py-2 rounded-md transition-all"
+          >
+            Inloggen
+          </button>
+          <button 
+            onClick={() => window.location.href = '/aanmelden'}
+            className="text-sm bg-white text-purple-600 hover:bg-opacity-90 px-4 py-2 rounded-md font-semibold transition-all"
+          >
+            Aanmelden
+          </button>
         </div>
       </header>
 
@@ -130,6 +144,17 @@ export default function Home() {
           {/* Company Popup (heeft voorrang) */}
           {selectedCompany ? (
             <CompanyPopup company={selectedCompany} onClose={() => setSelectedCompany(null)} />
+          ) : showServices ? (
+            /* Services View */
+            <ServicesMenu 
+              facilities={facilities}
+              onBack={() => setShowServices(false)}
+              onSelectService={handleServiceFilter}
+              onSelectCompany={(company) => {
+                handleSelectCompany(company);
+                setShowServices(false);
+              }}
+            />
           ) : showOrganisaties ? (
             /* Organisaties View */
             <OrganisatiesMenu 
@@ -147,6 +172,7 @@ export default function Home() {
               onToggle={() => setIsMenuOpen(!isMenuOpen)}
               vacatureCount={vacatureCount}
               onShowOrganisaties={() => setShowOrganisaties(true)}
+              onShowServices={() => setShowServices(true)}
             />
           )}
         </div>

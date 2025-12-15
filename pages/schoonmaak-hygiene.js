@@ -326,7 +326,7 @@ export default function SchoonmaakHygiene() {
                 {filteredCompanies.map((company) => (
                   <Link
                     key={company.id}
-                    href={`/bedrijf/${company.id}`}
+                    href={company.naam === "CSU" ? "/csu-schoonmaak-hygiene" : `/bedrijf/${company.id}`}
                     className={`p-4 border rounded-xl cursor-pointer transition-all block ${
                       selectedCompany?.id === company.id
                         ? "border-purple-500 shadow-lg bg-purple-50"

@@ -166,7 +166,7 @@ export default function DienstverlenigPage() {
               {serviceData.companies.map((company) => (
                 <Link
                   key={company.id}
-                  href={`/bedrijf/${company.id}`}
+                  href={company.naam === "CSU" ? "/csu" : `/bedrijf/${company.id}`}
                   style={{ textDecoration: 'none' }}
                 >
                   <div

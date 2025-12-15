@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 
 export default function OrganisatiesMenu({ facilities = [], onBack, onSelectCompany }) {
-  const [selectedType, setSelectedType] = useState("Alles");
-  const [selectedBranche, setSelectedBranche] = useState("Alles");
+  const [selectedTypes, setSelectedTypes] = useState([]);
+  const [selectedBranches, setSelectedBranches] = useState([]);
+  const [isTypeOpen, setIsTypeOpen] = useState(false);
+  const [isBrancheOpen, setIsBrancheOpen] = useState(false);
 
   // Haal alle unieke branches op uit de data
   const getAllBranches = () => {
@@ -34,13 +36,38 @@ export default function OrganisatiesMenu({ facilities = [], onBack, onSelectComp
   const allBranches = getAllBranches();
   const allTypes = getAllTypes();
 
+  // Toggle type checkbox
+  const toggleType = (type) => {
+    setSelectedTypes(prev => 
+      prev.includes(type) 
+        ? prev.filter(t => t !== type)
+        : [...prev, type]
+    );
+  };
+
+  // Toggle branche checkbox
+  const toggleBranche = (branche) => {
+    setSelectedBranches(prev => 
+      prev.includes(branche) 
+        ? prev.filter(b => b !== branche)
+        : [...prev, branche]
+    );
+  };
+
   // Filter facilities
   const filteredFacilities = facilities.filter((facility) => {
-    if (selectedType !== "Alles" && facility.type !== selectedType) return false;
-    if (selectedBranche !== "Alles") {
-      const facilityBranches = facility.branche.split(',').map(b => b.trim());
-      if (!facilityBranches.includes(selectedBranche)) return false;
+    // Filter op type
+    if (selectedTypes.length > 0 && !selectedTypes.includes(facility.type)) {
+      return false;
     }
+    
+    // Filter op branche
+    if (selectedBranches.length > 0) {
+      const facilityBranches = facility.branche.split(',').map(b => b.trim());
+      const hasMatchingBranche = facilityBranches.some(fb => selectedBranches.includes(fb));
+      if (!hasMatchingBranche) return false;
+    }
+    
     return true;
   });
 
@@ -98,8 +125,9 @@ export default function OrganisatiesMenu({ facilities = [], onBack, onSelectComp
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
-          justifyContent: 'center',
-          flex: 1
+          justifyContent: 'flex-start',
+          flex: 1,
+          paddingLeft: '44px'
         }}>
           <span style={{ fontSize: '20px' }}>🏢</span>
           <h2 style={{
@@ -118,181 +146,148 @@ export default function OrganisatiesMenu({ facilities = [], onBack, onSelectComp
         overflowY: 'auto',
         padding: '20px'
       }}>
-        {/* Filters - Mooier design */}
-        <div style={{ marginBottom: '24px' }}>
-          <h3 style={{
-            fontSize: '12px',
-            fontWeight: 600,
-            color: '#999',
-            margin: '0 0 12px 0',
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px'
-          }}>
-            Vorm van dienstverlening
-          </h3>
-          <div style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '8px'
-          }}>
-            <button 
-              onClick={() => setSelectedType("Alles")}
+        {/* Filters - Uitklapbare checkbox lijsten */}
+        
+        {/* Type filter */}
+        <div style={{ marginBottom: '16px' }}>
+          <button
+            onClick={() => setIsTypeOpen(!isTypeOpen)}
+            style={{
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '12px 0',
+              background: 'transparent',
+              border: 'none',
+              borderBottom: '1px solid #e8e8e8',
+              cursor: 'pointer',
+              fontSize: '12px',
+              fontWeight: 600,
+              color: '#666',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}
+          >
+            <span>Vorm van dienstverlening</span>
+            <svg 
+              width="16" 
+              height="16" 
+              viewBox="0 0 16 16" 
+              fill="none"
               style={{
-                padding: '8px 14px',
-                border: selectedType === "Alles" ? 'none' : '1px solid #e0e0e0',
-                background: selectedType === "Alles" ? '#4285f4' : 'white',
-                color: selectedType === "Alles" ? 'white' : '#666',
-                borderRadius: '20px',
-                fontSize: '13px',
-                fontWeight: 500,
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseOver={(e) => {
-                if (selectedType !== "Alles") {
-                  e.currentTarget.style.background = '#f8f8f8';
-                  e.currentTarget.style.borderColor = '#d0d0d0';
-                }
-              }}
-              onMouseOut={(e) => {
-                if (selectedType !== "Alles") {
-                  e.currentTarget.style.background = 'white';
-                  e.currentTarget.style.borderColor = '#e0e0e0';
-                }
+                transform: isTypeOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                transition: 'transform 0.2s ease'
               }}
             >
-              Alles
-            </button>
-            {allTypes.map(type => (
-              <button 
-                key={type}
-                onClick={() => setSelectedType(type)}
-                style={{
-                  padding: '8px 14px',
-                  border: selectedType === type ? 'none' : '1px solid #e0e0e0',
-                  background: selectedType === type ? '#4285f4' : 'white',
-                  color: selectedType === type ? 'white' : '#666',
-                  borderRadius: '20px',
-                  fontSize: '13px',
-                  fontWeight: 500,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseOver={(e) => {
-                  if (selectedType !== type) {
-                    e.currentTarget.style.background = '#f8f8f8';
-                    e.currentTarget.style.borderColor = '#d0d0d0';
-                  }
-                }}
-                onMouseOut={(e) => {
-                  if (selectedType !== type) {
-                    e.currentTarget.style.background = 'white';
-                    e.currentTarget.style.borderColor = '#e0e0e0';
-                  }
-                }}
-              >
-                {type}
-              </button>
-            ))}
-          </div>
+              <path d="M4 6L8 10L12 6" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+          {isTypeOpen && (
+            <div style={{ paddingTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {allTypes.map(type => (
+                <label 
+                  key={type}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    cursor: 'pointer',
+                    padding: '6px 0',
+                    fontSize: '14px',
+                    color: '#1a1a1a'
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedTypes.includes(type)}
+                    onChange={() => toggleType(type)}
+                    style={{
+                      width: '18px',
+                      height: '18px',
+                      cursor: 'pointer',
+                      accentColor: '#4285f4'
+                    }}
+                  />
+                  <span>{type}</span>
+                </label>
+              ))}
+            </div>
+          )}
         </div>
 
+        {/* Branche filter */}
         <div style={{ marginBottom: '24px' }}>
-          <h3 style={{
-            fontSize: '12px',
-            fontWeight: 600,
-            color: '#999',
-            margin: '0 0 12px 0',
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px'
-          }}>
-            Service categorieën
-          </h3>
-          <div style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '8px'
-          }}>
-            <button 
-              onClick={() => setSelectedBranche("Alles")}
+          <button
+            onClick={() => setIsBrancheOpen(!isBrancheOpen)}
+            style={{
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '12px 0',
+              background: 'transparent',
+              border: 'none',
+              borderBottom: '1px solid #e8e8e8',
+              cursor: 'pointer',
+              fontSize: '12px',
+              fontWeight: 600,
+              color: '#666',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}
+          >
+            <span>Service categorieën</span>
+            <svg 
+              width="16" 
+              height="16" 
+              viewBox="0 0 16 16" 
+              fill="none"
               style={{
-                padding: '8px 14px',
-                border: selectedBranche === "Alles" ? 'none' : '1px solid #e0e0e0',
-                background: selectedBranche === "Alles" ? '#4285f4' : 'white',
-                color: selectedBranche === "Alles" ? 'white' : '#666',
-                borderRadius: '20px',
-                fontSize: '13px',
-                fontWeight: 500,
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseOver={(e) => {
-                if (selectedBranche !== "Alles") {
-                  e.currentTarget.style.background = '#f8f8f8';
-                  e.currentTarget.style.borderColor = '#d0d0d0';
-                }
-              }}
-              onMouseOut={(e) => {
-                if (selectedBranche !== "Alles") {
-                  e.currentTarget.style.background = 'white';
-                  e.currentTarget.style.borderColor = '#e0e0e0';
-                }
+                transform: isBrancheOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                transition: 'transform 0.2s ease'
               }}
             >
-              Alles
-            </button>
-            {allBranches.slice(0, 4).map(branche => (
-              <button 
-                key={branche}
-                onClick={() => setSelectedBranche(branche)}
-                style={{
-                  padding: '8px 14px',
-                  border: selectedBranche === branche ? 'none' : '1px solid #e0e0e0',
-                  background: selectedBranche === branche ? '#4285f4' : 'white',
-                  color: selectedBranche === branche ? 'white' : '#666',
-                  borderRadius: '20px',
-                  fontSize: '13px',
-                  fontWeight: 500,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseOver={(e) => {
-                  if (selectedBranche !== branche) {
-                    e.currentTarget.style.background = '#f8f8f8';
-                    e.currentTarget.style.borderColor = '#d0d0d0';
-                  }
-                }}
-                onMouseOut={(e) => {
-                  if (selectedBranche !== branche) {
-                    e.currentTarget.style.background = 'white';
-                    e.currentTarget.style.borderColor = '#e0e0e0';
-                  }
-                }}
-              >
-                {branche}
-              </button>
-            ))}
-            {allBranches.length > 4 && (
-              <button style={{
-                padding: '8px 14px',
-                border: '1px solid #e0e0e0',
-                background: 'white',
-                color: '#666',
-                borderRadius: '20px',
-                fontSize: '13px',
-                fontWeight: 500,
-                cursor: 'default'
-              }}>
-                +{allBranches.length - 4}
-              </button>
-            )}
-          </div>
+              <path d="M4 6L8 10L12 6" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+          {isBrancheOpen && (
+            <div style={{ paddingTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {allBranches.map(branche => (
+                <label 
+                  key={branche}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    cursor: 'pointer',
+                    padding: '6px 0',
+                    fontSize: '14px',
+                    color: '#1a1a1a'
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedBranches.includes(branche)}
+                    onChange={() => toggleBranche(branche)}
+                    style={{
+                      width: '18px',
+                      height: '18px',
+                      cursor: 'pointer',
+                      accentColor: '#4285f4'
+                    }}
+                  />
+                  <span>{branche}</span>
+                </label>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* CTA Button */}
         <div style={{ marginBottom: '24px' }}>
           <button
-            onClick={() => window.open('https://tally.so/r/nGb0vp', '_blank')}
+            onClick={() => window.location.href = '/aanmelden'}
             style={{
               width: '100%',
               background: '#4285f4',
@@ -341,7 +336,14 @@ export default function OrganisatiesMenu({ facilities = [], onBack, onSelectComp
               filteredFacilities.map((facility) => (
                 <button
                   key={facility.id}
-                  onClick={() => onSelectCompany(facility)}
+                  onClick={() => {
+                    // Check if this is CSU, then redirect to dedicated page
+                    if (facility.naam === "CSU") {
+                      window.location.href = '/csu';
+                    } else {
+                      onSelectCompany(facility);
+                    }
+                  }}
                   style={{
                     display: 'flex',
                     alignItems: 'center',

@@ -371,7 +371,7 @@ export default function FMMarketplace() {
             }}>
               {facilities.map((facility) => (
                 <Link 
-                  href={`/bedrijf/${facility.id}`}
+                  href={facility.naam === "CSU" ? "/csu" : `/bedrijf/${facility.id}`}
                   key={facility.id}
                   style={{ textDecoration: 'none' }}
                 >

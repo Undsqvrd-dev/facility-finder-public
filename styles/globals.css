@@ -139,6 +139,7 @@
 .facility-menu-item {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 12px;
   padding: 12px 14px;
   border-radius: 10px;
@@ -179,6 +180,7 @@
   font-size: 14px;
   font-weight: 500;
   flex: 1;
+  text-align: left;
 }
 
 .facility-menu-badge {

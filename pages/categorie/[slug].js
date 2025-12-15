@@ -509,10 +509,19 @@ export default function CategoriePage() {
                   gap: "14px",
                 }}
               >
-                {facilities.slice(0, 9).map((facility) => (
+                {facilities.slice(0, 9).map((facility) => {
+                  // Bepaal de juiste CSU pagina op basis van de categorie
+                  let csuHref = "/csu";
+                  if (facility.naam === "CSU") {
+                    if (slug === "schoonmaak-hygiene") csuHref = "/csu-schoonmaak-hygiene";
+                    else if (slug === "receptie-hospitality") csuHref = "/csu-receptie-hospitality";
+                    else if (slug === "catering-foodservices") csuHref = "/csu-catering";
+                  }
+                  
+                  return (
                   <Link
                     key={facility.id}
-                    href={`/bedrijf/${facility.id}`}
+                    href={facility.naam === "CSU" ? csuHref : `/bedrijf/${facility.id}`}
                     style={{ textDecoration: 'none' }}
                   >
                     <div
@@ -600,7 +609,8 @@ export default function CategoriePage() {
                     </div>
                     </div>
                   </Link>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
